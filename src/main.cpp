@@ -7,9 +7,8 @@
 #include <iostream>
 #include <memory>
 
-const int WINDOW_WIDTH = 800, WINDOW_HEIGHT = 600;
+const int WINDOW_WIDTH = 1920, WINDOW_HEIGHT = 1080;
 
-// 1833 x 1031
 void GLFWWindowDeleter(GLFWwindow *window) {
     glfwDestroyWindow(window);
 }
@@ -24,7 +23,14 @@ std::shared_ptr<GLFWwindow> CreateWindow() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow *windowPtr = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Caruti Engine", nullptr, nullptr);
+    GLFWwindow *windowPtr = glfwCreateWindow(
+            WINDOW_WIDTH,
+            WINDOW_HEIGHT,
+            "Caruti Engine",
+            nullptr,
+            nullptr
+    );
+
     if (windowPtr == nullptr) {
         Log::Error("Failed to create GLFW window");
         glfwTerminate();
@@ -37,11 +43,6 @@ std::shared_ptr<GLFWwindow> CreateWindow() {
         Log::Error("Failed to init GLAD");
         exit(-1);
     }
-
-    const char *renderer = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
-    Log::Information("Device: {}", renderer);
-    const char *version = reinterpret_cast<const char *>(glGetString(GL_VERSION));
-    Log::Information("OpenGL version: {}", version);
 
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     glfwSetFramebufferSizeCallback(window.get(), FramebufferSizeCallback);
@@ -75,7 +76,19 @@ int main() {
             exit(0);
         }
 
-        glClearColor(0.1f, 0.5f, 0.2f, 1.0f);
+        if (glfwGetKey(window.get(), GLFW_KEY_A)) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+        }
+
+        if (glfwGetKey(window.get(), GLFW_KEY_S)) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        }
+
+        if (glfwGetKey(window.get(), GLFW_KEY_D)) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
+
+        glClearColor(0, 0, 0, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
 
