@@ -28,7 +28,7 @@ void Shader::SetFloat(const std::string &name, float value) const {
 }
 
 uint Shader::CreateShader(GLenum type, const std::string &fileName) {
-    const std::string basePath = "Resources/Shaders/";
+    const std::string basePath = "resources/shaders/";
     std::string strShaderCode = File::GetAllLines(basePath + fileName);
     const char *shaderCode = strShaderCode.c_str();
 

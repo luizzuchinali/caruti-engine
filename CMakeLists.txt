@@ -9,7 +9,7 @@ add_executable(caruti_engine ${sources})
 #Copy resources
 add_custom_target(copy_resources
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_SOURCE_DIR}/Resources
+        ${CMAKE_CURRENT_SOURCE_DIR}/resources
         ${CMAKE_CURRENT_BINARY_DIR}/Resources)
 add_dependencies(caruti_engine copy_resources)
 
