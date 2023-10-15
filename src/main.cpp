@@ -75,6 +75,18 @@ int main() {
             exit(0);
         }
 
+        if (glfwGetKey(window.get(), GLFW_KEY_A)) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+        }
+
+        if (glfwGetKey(window.get(), GLFW_KEY_S)) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        }
+
+        if (glfwGetKey(window.get(), GLFW_KEY_D)) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
+
         glClearColor(0.1f, 0.5f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
