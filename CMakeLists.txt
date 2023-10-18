@@ -3,7 +3,7 @@ project(caruti_engine)
 
 set(CMAKE_CXX_STANDARD 23)
 
-file(GLOB_RECURSE sources CONFIGURE_DEPENDS "src/**.cpp" "src/**.hpp" "third/glad/**.c")
+file(GLOB_RECURSE sources CONFIGURE_DEPENDS "src/**.cpp" "src/**.hpp" "third/glad/**.c" "third/stb/**.cpp")
 add_executable(caruti_engine ${sources})
 
 #Copy resources
@@ -18,6 +18,7 @@ include_directories(caruti_engine src)
 target_include_directories(caruti_engine PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/third/glfw/include
         ${CMAKE_CURRENT_SOURCE_DIR}/third/glad/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/third/stb/include
 )
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/third/fmt EXCLUDE_FROM_ALL)

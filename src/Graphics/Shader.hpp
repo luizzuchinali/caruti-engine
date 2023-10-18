@@ -1,31 +1,35 @@
 #pragma once
 
 #include <string>
-#include "Types.hpp"
 #include "File.hpp"
 #include "glad/glad.h"
+#include "Texture.hpp"
 #include "Log.hpp"
 
-class Shader {
-public:
-    Shader(const char *vertexName, const char *fragmentName);
+namespace Graphics {
+    class Shader {
+    public:
+        Shader(const char *vertexName, const char *fragmentName);
 
-    void Use() const;
+        void Use() const;
 
-    void SetBool(const std::string &name, bool value) const;
+        void SetBool(const std::string &name, bool value) const;
 
-    void SetInt(const std::string &name, int value) const;
+        void SetInt(const std::string &name, int value) const;
 
-    void SetFloat(const std::string &name, float value) const;
+        void SetFloat(const std::string &name, float value) const;
+        
+        void SetTexture(const char *uName, const Texture &texture) const;
 
-    ~Shader() {
-        glDeleteProgram(_id);
-    }
+        ~Shader() {
+            glDeleteProgram(_id);
+        }
 
-private:
-    unsigned int _id{};
+    private:
+        unsigned int _id{};
 
-    static uint CreateShader(GLenum type, const std::string &fileName);
+        static unsigned int CreateShader(GLenum type, const std::string &fileName);
 
-    void CreateProgram(uint vertex, uint fragment);
-};
+        void CreateProgram(unsigned int vertex, unsigned int fragment);
+    };
+}
