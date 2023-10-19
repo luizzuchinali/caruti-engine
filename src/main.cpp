@@ -55,7 +55,8 @@ int main() {
 
     auto window = CreateWindow();
 
-    unsigned int VBO, VAO;
+    unsigned int VBO, VAO, EBO;
+
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
 
@@ -72,11 +73,15 @@ int main() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
+    glGenBuffers(1, &EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Triangle::Indices), Triangle::Indices, GL_STATIC_DRAW);
+
     Shader shader("VertexShader.vert", "FragmentShader.frag");
-//    Texture brickTex("BrickTexture.jpg", GL_RGBA, GL_TEXTURE0);
+    Texture brickTex("BrickTexture.jpg", GL_RGB, GL_TEXTURE0);
 
     shader.Use();
-//    shader.SetTexture("tex", brickTex);
+    shader.SetTexture("tex", brickTex);
 
     while (!glfwWindowShouldClose(window.get())) {
         if (glfwGetKey(window.get(), GLFW_KEY_ESCAPE)) {
@@ -99,10 +104,10 @@ int main() {
         glClearColor(0, 0, 0, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-//        brickTex.ActivateAndBind();
+        brickTex.ActivateAndBind();
         shader.Use();
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
         glfwPollEvents();
         glfwSwapBuffers(window.get());
