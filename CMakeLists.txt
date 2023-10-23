@@ -19,6 +19,7 @@ target_include_directories(caruti_engine PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/third/glfw/include
         ${CMAKE_CURRENT_SOURCE_DIR}/third/glad/include
         ${CMAKE_CURRENT_SOURCE_DIR}/third/stb/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/third/glm/include
 )
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/third/fmt EXCLUDE_FROM_ALL)

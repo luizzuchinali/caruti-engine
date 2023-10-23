@@ -8,7 +8,7 @@
 
 using namespace Graphics;
 
-const int WINDOW_WIDTH = 1366, WINDOW_HEIGHT = 768;
+const int WINDOW_WIDTH = 1920, WINDOW_HEIGHT = 1080;
 
 void GLFWWindowDeleter(GLFWwindow *window) {
     glfwDestroyWindow(window);
