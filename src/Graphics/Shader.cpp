@@ -1,4 +1,5 @@
 #include "Shader.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 namespace Graphics {
 
@@ -68,5 +69,9 @@ namespace Graphics {
 
     void Shader::SetTexture(const char *uName, const Texture &texture) const {
         this->SetInt(uName, texture.GetIndex());
+    }
+
+    void Shader::SetMat4(const std::string &name, const glm::mat4 matrix) const {
+        glUniformMatrix4fv(glGetUniformLocation(_id, name.c_str()), 1, GL_FALSE, glm::value_ptr(matrix));
     }
 }

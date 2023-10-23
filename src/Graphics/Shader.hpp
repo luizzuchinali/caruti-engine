@@ -5,6 +5,7 @@
 #include "glad/glad.h"
 #include "Texture.hpp"
 #include "Log.hpp"
+#include "glm/glm.hpp"
 
 namespace Graphics {
     class Shader {
@@ -18,8 +19,10 @@ namespace Graphics {
         void SetInt(const std::string &name, int value) const;
 
         void SetFloat(const std::string &name, float value) const;
-        
+
         void SetTexture(const char *uName, const Texture &texture) const;
+
+        void SetMat4(const std::string &name, glm::mat4 matrix) const;
 
         ~Shader() {
             glDeleteProgram(_id);

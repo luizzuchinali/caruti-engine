@@ -3,6 +3,8 @@
 #include "Log.hpp"
 #include "Triangle.hpp"
 #include "Graphics/Shader.hpp"
+#include <glm/gtc/matrix_transform.hpp>
+
 #include <iostream>
 #include <memory>
 
@@ -83,6 +85,8 @@ int main() {
     shader.Use();
     shader.SetTexture("tex", brickTex);
 
+    glBindVertexArray(0);
+
     while (!glfwWindowShouldClose(window.get())) {
         if (glfwGetKey(window.get(), GLFW_KEY_ESCAPE)) {
             GLFWWindowDeleter(window.get());
@@ -106,8 +110,16 @@ int main() {
 
         brickTex.ActivateAndBind();
         shader.Use();
+
+        auto transform = glm::translate(glm::mat4(1), glm::vec3(0.5, 0, 0));
+        transform = glm::rotate(transform, (float) glfwGetTime(), glm::vec3(0, 0, 1));
+        transform = glm::scale(transform, glm::vec3(0.5, 0.5, 0.5));
+
+        shader.SetMat4("uTransform", transform);
+
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
 
         glfwPollEvents();
         glfwSwapBuffers(window.get());
