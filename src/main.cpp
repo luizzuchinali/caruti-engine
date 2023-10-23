@@ -78,8 +78,32 @@ int main() {
 
     shader.Use();
     shader.SetTexture("tex", brickTex);
+    auto view = glm::translate(glm::mat4(1), glm::vec3(0, 0, -5));
+    auto projection = glm::perspective(
+            glm::radians(45.0f),
+            (float) WINDOW_WIDTH / (float) WINDOW_HEIGHT,
+            0.1f,
+            100.0f
+    );
+
+    shader.SetMat4("view", view);
+    shader.SetMat4("projection", projection);
 
     glBindVertexArray(0);
+
+
+    glm::vec3 cubePositions[] = {
+            glm::vec3(0.0f, 0.0f, 0.0f),
+            glm::vec3(2.0f, 5.0f, -15.0f),
+            glm::vec3(-1.5f, -2.2f, -2.5f),
+            glm::vec3(-3.8f, -2.0f, -12.3f),
+            glm::vec3(2.4f, -0.4f, -3.5f),
+            glm::vec3(-1.7f, 3.0f, -7.5f),
+            glm::vec3(1.3f, -2.0f, -2.5f),
+            glm::vec3(1.5f, 2.0f, -2.5f),
+            glm::vec3(1.5f, 0.2f, -1.5f),
+            glm::vec3(-1.3f, 1.0f, -1.5f)
+    };
 
     while (!glfwWindowShouldClose(window.get())) {
         if (glfwGetKey(window.get(), GLFW_KEY_ESCAPE)) {
@@ -105,22 +129,15 @@ int main() {
         brickTex.ActivateAndBind();
         shader.Use();
 
-        auto model = glm::rotate(glm::mat4(1), (float) glfwGetTime(), glm::vec3(1, 1, 0));
-        auto view = glm::translate(glm::mat4(1), glm::vec3(0, 0, -5));
-
-        auto projection = glm::perspective(
-                glm::radians(45.0f),
-                (float) WINDOW_WIDTH / (float) WINDOW_HEIGHT,
-                0.1f,
-                100.0f
-        );
-
-        shader.SetMat4("model", model);
-        shader.SetMat4("view", view);
-        shader.SetMat4("projection", projection);
-
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        for (unsigned int i = 0; i < sizeof(cubePositions) / sizeof(glm::vec3); i++) {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePositions[i]);
+            model = glm::rotate(model, (float) glfwGetTime() + (float) i, glm::vec3(1.0f, 0.3f, 0.5f));
+            shader.SetMat4("model", model);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+        glBindVertexArray(0);
 
         glfwPollEvents();
         glfwSwapBuffers(window.get());
