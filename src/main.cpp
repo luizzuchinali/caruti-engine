@@ -1,7 +1,7 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "Log.hpp"
-#include "Triangle.hpp"
+#include "Box.hpp"
 #include "Graphics/Shader.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -49,6 +49,7 @@ std::shared_ptr<GLFWwindow> CreateWindow() {
 
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     glfwSetFramebufferSizeCallback(window.get(), FramebufferSizeCallback);
+    glEnable(GL_DEPTH_TEST);
 
     return window;
 }
@@ -57,27 +58,20 @@ int main() {
 
     auto window = CreateWindow();
 
-    unsigned int VBO, VAO, EBO;
+    unsigned int VBO, VAO;
 
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
 
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Triangle::Vertices), Triangle::Vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Box::Vertices), Box::Vertices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), nullptr);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), nullptr);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (3 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3 * sizeof(float)));
     glEnableVertexAttribArray(1);
-
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-    glGenBuffers(1, &EBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Triangle::Indices), Triangle::Indices, GL_STATIC_DRAW);
 
     Shader shader("VertexShader.vert", "FragmentShader.frag");
     Texture brickTex("crate2_diffuse.png", GL_RGBA, GL_TEXTURE0);
@@ -106,12 +100,12 @@ int main() {
         }
 
         glClearColor(0, 0, 0, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         brickTex.ActivateAndBind();
         shader.Use();
 
-        auto model = glm::mat4(1);
+        auto model = glm::rotate(glm::mat4(1), (float) glfwGetTime(), glm::vec3(1, 1, 0));
         auto view = glm::translate(glm::mat4(1), glm::vec3(0, 0, -5));
 
         auto projection = glm::perspective(
@@ -126,8 +120,7 @@ int main() {
         shader.SetMat4("projection", projection);
 
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glfwPollEvents();
         glfwSwapBuffers(window.get());
