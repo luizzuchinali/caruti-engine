@@ -80,7 +80,7 @@ int main() {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Triangle::Indices), Triangle::Indices, GL_STATIC_DRAW);
 
     Shader shader("VertexShader.vert", "FragmentShader.frag");
-    Texture brickTex("BrickTexture.jpg", GL_RGB, GL_TEXTURE0);
+    Texture brickTex("crate2_diffuse.png", GL_RGBA, GL_TEXTURE0);
 
     shader.Use();
     shader.SetTexture("tex", brickTex);
@@ -111,9 +111,9 @@ int main() {
         brickTex.ActivateAndBind();
         shader.Use();
 
-        auto transform = glm::translate(glm::mat4(1), glm::vec3(0.5, 0, 0));
-        transform = glm::rotate(transform, (float) glfwGetTime(), glm::vec3(0, 0, 1));
+        auto transform = glm::mat4(1);
         transform = glm::scale(transform, glm::vec3(0.5, 0.5, 0.5));
+        transform = glm::rotate(transform, (float) glfwGetTime(), glm::vec3(0, 0, 1));
 
         shader.SetMat4("uTransform", transform);
 
