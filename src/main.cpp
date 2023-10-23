@@ -5,12 +5,15 @@
 #include "Graphics/Shader.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <iostream>
+#include "imgui.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
+
 #include <memory>
 
 using namespace Graphics;
 
-const int WINDOW_WIDTH = 1920, WINDOW_HEIGHT = 1080;
+const int WINDOW_WIDTH = 2560, WINDOW_HEIGHT = 1440;
 
 void GLFWWindowDeleter(GLFWwindow *window) {
     glfwDestroyWindow(window);
@@ -50,6 +53,20 @@ std::shared_ptr<GLFWwindow> CreateWindow() {
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     glfwSetFramebufferSizeCallback(window.get(), FramebufferSizeCallback);
     glEnable(GL_DEPTH_TEST);
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO &io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+    io.FontGlobalScale = 1.25f;
+
+    float xscale, yscale;
+    glfwGetWindowContentScale(window.get(), &xscale, &yscale);
+    io.DisplayFramebufferScale = ImVec2(xscale, yscale);
+
+    ImGui_ImplGlfw_InitForOpenGL(window.get(), true);
+    ImGui_ImplOpenGL3_Init();
 
     return window;
 }
@@ -106,6 +123,11 @@ int main() {
     };
 
     while (!glfwWindowShouldClose(window.get())) {
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+        ImGui::ShowDemoWindow();
+
         if (glfwGetKey(window.get(), GLFW_KEY_ESCAPE)) {
             GLFWWindowDeleter(window.get());
             exit(0);
@@ -139,9 +161,16 @@ int main() {
         }
         glBindVertexArray(0);
 
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         glfwPollEvents();
         glfwSwapBuffers(window.get());
     }
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     exit(0);
 }
