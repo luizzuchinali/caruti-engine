@@ -111,11 +111,19 @@ int main() {
         brickTex.ActivateAndBind();
         shader.Use();
 
-        auto transform = glm::mat4(1);
-        transform = glm::scale(transform, glm::vec3(0.5, 0.5, 0.5));
-        transform = glm::rotate(transform, (float) glfwGetTime(), glm::vec3(0, 0, 1));
+        auto model = glm::mat4(1);
+        auto view = glm::translate(glm::mat4(1), glm::vec3(0, 0, -5));
 
-        shader.SetMat4("uTransform", transform);
+        auto projection = glm::perspective(
+                glm::radians(45.0f),
+                (float) WINDOW_WIDTH / (float) WINDOW_HEIGHT,
+                0.1f,
+                100.0f
+        );
+
+        shader.SetMat4("model", model);
+        shader.SetMat4("view", view);
+        shader.SetMat4("projection", projection);
 
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);

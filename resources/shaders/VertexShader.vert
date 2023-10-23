@@ -6,10 +6,12 @@ layout (location = 2) in vec2 inTexCoord;
 out vec4 vertOutColor;
 out vec2 vertOutTexCoord;
 
-uniform mat4 uTransform;
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
 
 void main() {
-    gl_Position = uTransform * vec4(inPos, 1.0);
+    gl_Position = projection * view * model * vec4(inPos, 1.0);
 
     vertOutColor = vec4(inColor, 1);
     vertOutTexCoord = inTexCoord;
