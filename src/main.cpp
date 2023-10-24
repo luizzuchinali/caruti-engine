@@ -1,7 +1,7 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "Log.hpp"
-#include "Box.hpp"
+#include "Cube.hpp"
 #include "Graphics/Shader.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -11,8 +11,6 @@
 #include "Camera.hpp"
 
 #include <memory>
-
-using namespace Graphics;
 
 const int WINDOW_WIDTH = 2560, WINDOW_HEIGHT = 1440;
 auto MainCamera = Camera(glm::vec3(0, 0, -5));
@@ -30,6 +28,7 @@ std::shared_ptr<GLFWwindow> CreateWindow() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_SAMPLES, 4);
 
     GLFWwindow *windowPtr = glfwCreateWindow(
             WINDOW_WIDTH,
@@ -55,6 +54,7 @@ std::shared_ptr<GLFWwindow> CreateWindow() {
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     glfwSetFramebufferSizeCallback(window.get(), FramebufferSizeCallback);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_MULTISAMPLE);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -75,11 +75,14 @@ std::shared_ptr<GLFWwindow> CreateWindow() {
 }
 
 void HandleInput(const std::shared_ptr<GLFWwindow> &window, Camera &camera, float deltaTime) {
-    auto pKeyPress = glfwGetKey(window.get(), GLFW_KEY_P);
-    if (pKeyPress && glfwGetInputMode(window.get(), GLFW_CURSOR) == GLFW_CURSOR_DISABLED)
-        glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    else if (pKeyPress && glfwGetInputMode(window.get(), GLFW_CURSOR) != GLFW_CURSOR_DISABLED)
-        glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    auto pKeyPress = glfwGetKey(window.get(), GLFW_KEY_P) == GLFW_PRESS;
+
+    if (pKeyPress) {
+        if (glfwGetInputMode(window.get(), GLFW_CURSOR) == GLFW_CURSOR_DISABLED)
+            glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        else if (glfwGetInputMode(window.get(), GLFW_CURSOR) == GLFW_CURSOR_NORMAL)
+            glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
 
     if (glfwGetKey(window.get(), GLFW_KEY_ESCAPE)) {
         GLFWWindowDeleter(window.get());
@@ -87,13 +90,13 @@ void HandleInput(const std::shared_ptr<GLFWwindow> &window, Camera &camera, floa
     }
 
     if (glfwGetKey(window.get(), GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(ECameraMovement::FORWARD, deltaTime);
+        camera.ProcessKeyboard(ECameraMovement::Forward, deltaTime);
     if (glfwGetKey(window.get(), GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(ECameraMovement::BACKWARD, deltaTime);
+        camera.ProcessKeyboard(ECameraMovement::Backward, deltaTime);
     if (glfwGetKey(window.get(), GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(ECameraMovement::LEFT, deltaTime);
+        camera.ProcessKeyboard(ECameraMovement::Left, deltaTime);
     if (glfwGetKey(window.get(), GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(ECameraMovement::RIGHT, deltaTime);
+        camera.ProcessKeyboard(ECameraMovement::Right, deltaTime);
 
     double xPos, yPos;
     glfwGetCursorPos(window.get(), &xPos, &yPos);
@@ -103,53 +106,26 @@ void HandleInput(const std::shared_ptr<GLFWwindow> &window, Camera &camera, floa
 int main() {
 
     auto window = CreateWindow();
-
-    unsigned int VBO, VAO;
-
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Box::Vertices), Box::Vertices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), nullptr);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    Shader shader("VertexShader.vert", "FragmentShader.frag");
-    Texture brickTex("crate2_diffuse.png", GL_RGBA, GL_TEXTURE0);
-
-    shader.Use();
-    shader.SetTexture("tex", brickTex);
-    auto projection = glm::perspective(
-            glm::radians(45.0f),
-            (float) WINDOW_WIDTH / (float) WINDOW_HEIGHT,
-            0.1f,
-            100.0f
-    );
-
-    shader.SetMat4("projection", projection);
-
-    glBindVertexArray(0);
-
-    glm::vec3 cubePositions[] = {
-            glm::vec3(0.0f, 0.0f, 0.0f),
-            glm::vec3(2.0f, 5.0f, -15.0f),
-            glm::vec3(-1.5f, -2.2f, -2.5f),
-            glm::vec3(-3.8f, -2.0f, -12.3f),
-            glm::vec3(2.4f, -0.4f, -3.5f),
-            glm::vec3(-1.7f, 3.0f, -7.5f),
-            glm::vec3(1.3f, -2.0f, -2.5f),
-            glm::vec3(1.5f, 2.0f, -2.5f),
-            glm::vec3(1.5f, 0.2f, -1.5f),
-            glm::vec3(-1.3f, 1.0f, -1.5f)
-    };
-
     float lastTime = glfwGetTime();
     float deltaTime;
+
+    auto crateShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "FragmentShader.frag");
+    auto crateTexture = std::make_shared<Graphics::Texture>("crate2_diffuse.png", GL_RGBA, GL_TEXTURE0);
+
+    crateShader->Use();
+
+    Cube cubes[] = {
+            Cube(crateShader, glm::vec3(0.0f, 0.0f, 0.0f)),
+            Cube(crateShader, glm::vec3(2.0f, 5.0f, -15.0f)),
+            Cube(crateShader, glm::vec3(-1.5f, -2.2f, -2.5f)),
+            Cube(crateShader, glm::vec3(-3.8f, -2.0f, -12.3f)),
+            Cube(crateShader, glm::vec3(2.4f, -0.4f, -3.5f)),
+            Cube(crateShader, glm::vec3(-1.7f, 3.0f, -7.5f)),
+            Cube(crateShader, glm::vec3(1.3f, -2.0f, -2.5f)),
+            Cube(crateShader, glm::vec3(1.5f, 2.0f, -2.5f)),
+            Cube(crateShader, glm::vec3(1.5f, 0.2f, -1.5f)),
+            Cube(crateShader, glm::vec3(-1.3f, 1.0f, -1.5f))
+    };
 
     while (!glfwWindowShouldClose(window.get())) {
         float currentTime = glfwGetTime();
@@ -166,20 +142,13 @@ int main() {
         glClearColor(0, 0, 0, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        brickTex.ActivateAndBind();
-        shader.Use();
-
-        shader.SetMat4("view", MainCamera.GetViewMatrix());
-
-        glBindVertexArray(VAO);
-        for (unsigned int i = 0; i < sizeof(cubePositions) / sizeof(glm::vec3); i++) {
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, cubePositions[i]);
-            model = glm::rotate(model, currentTime + (float) i, glm::vec3(1.0f, 0.3f, 0.5f));
-            shader.SetMat4("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+        for (auto &cube: cubes) {
+            cube.Rotation += glm::vec3(deltaTime, 0, 0);
+            cube.Update(deltaTime);
+            cube.Render();
         }
-        glBindVertexArray(0);
+
+        crateShader->SetMat4("camera", MainCamera.GetCameraMatrix());
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
