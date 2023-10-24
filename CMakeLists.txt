@@ -20,7 +20,8 @@ add_executable(caruti_engine ${sources}
         ${IMGUI_DIR}/imgui_draw.cpp
         ${IMGUI_DIR}/imgui_demo.cpp
         ${IMGUI_DIR}/imgui_tables.cpp
-        ${IMGUI_DIR}/imgui_widgets.cpp)
+        ${IMGUI_DIR}/imgui_widgets.cpp
+)
 
 #Copy resources
 add_custom_target(copy_resources
