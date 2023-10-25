@@ -24,6 +24,10 @@ namespace Graphics {
 
         void SetMat4(const std::string &name, glm::mat4 matrix) const;
 
+        void SetVec3(const std::string &name, glm::vec3 &vec) const;
+
+        void SetVec3(const std::string &name, float x, float y, float z) const;
+
         ~Shader() {
             glDeleteProgram(_id);
         }

@@ -13,7 +13,7 @@
 #include <memory>
 
 const int WINDOW_WIDTH = 2560, WINDOW_HEIGHT = 1440;
-auto MainCamera = Camera(glm::vec3(0, 0, -5));
+auto MainCamera = Camera(glm::vec3(0, 0, -20));
 
 void GLFWWindowDeleter(GLFWwindow *window) {
     glfwDestroyWindow(window);
@@ -21,6 +21,16 @@ void GLFWWindowDeleter(GLFWwindow *window) {
 
 void FramebufferSizeCallback(GLFWwindow *windowPtr, int width, int height) {
     glViewport(0, 0, width, height);
+}
+
+void HandleInputCallback(GLFWwindow *windowPtr, int key, [[maybe_unused]] int scanCode, int action,
+                         [[maybe_unused]] int mods) {
+
+    auto isKeyPRelease = key == GLFW_KEY_P && action == GLFW_RELEASE;
+    if (isKeyPRelease && glfwGetInputMode(windowPtr, GLFW_CURSOR) == GLFW_CURSOR_DISABLED)
+        glfwSetInputMode(windowPtr, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    else if (isKeyPRelease && glfwGetInputMode(windowPtr, GLFW_CURSOR) == GLFW_CURSOR_NORMAL)
+        glfwSetInputMode(windowPtr, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
 std::shared_ptr<GLFWwindow> CreateWindow() {
@@ -53,6 +63,7 @@ std::shared_ptr<GLFWwindow> CreateWindow() {
 
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     glfwSetFramebufferSizeCallback(window.get(), FramebufferSizeCallback);
+    glfwSetKeyCallback(window.get(), HandleInputCallback);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
 
@@ -75,15 +86,6 @@ std::shared_ptr<GLFWwindow> CreateWindow() {
 }
 
 void HandleInput(const std::shared_ptr<GLFWwindow> &window, Camera &camera, float deltaTime) {
-    auto pKeyPress = glfwGetKey(window.get(), GLFW_KEY_P) == GLFW_PRESS;
-
-    if (pKeyPress) {
-        if (glfwGetInputMode(window.get(), GLFW_CURSOR) == GLFW_CURSOR_DISABLED)
-            glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-        else if (glfwGetInputMode(window.get(), GLFW_CURSOR) == GLFW_CURSOR_NORMAL)
-            glfwSetInputMode(window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    }
-
     if (glfwGetKey(window.get(), GLFW_KEY_ESCAPE)) {
         GLFWWindowDeleter(window.get());
         exit(0);
@@ -109,22 +111,20 @@ int main() {
     float lastTime = glfwGetTime();
     float deltaTime;
 
-    auto crateShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "FragmentShader.frag");
-    auto crateTexture = std::make_shared<Graphics::Texture>("crate2_diffuse.png", GL_RGBA, GL_TEXTURE0);
+    auto lightSourceShader = std::make_shared<Graphics::Shader>("NoTextureShader.vert", "LightSourceShader.frag");
+    Cube lightSourceCube(lightSourceShader, glm::vec3(0, 0, -5));
 
-    crateShader->Use();
-
+    auto lightReceiveShader = std::make_shared<Graphics::Shader>("NoTextureShader.vert", "LightingShader.frag");
     Cube cubes[] = {
-            Cube(crateShader, glm::vec3(0.0f, 0.0f, 0.0f)),
-            Cube(crateShader, glm::vec3(2.0f, 5.0f, -15.0f)),
-            Cube(crateShader, glm::vec3(-1.5f, -2.2f, -2.5f)),
-            Cube(crateShader, glm::vec3(-3.8f, -2.0f, -12.3f)),
-            Cube(crateShader, glm::vec3(2.4f, -0.4f, -3.5f)),
-            Cube(crateShader, glm::vec3(-1.7f, 3.0f, -7.5f)),
-            Cube(crateShader, glm::vec3(1.3f, -2.0f, -2.5f)),
-            Cube(crateShader, glm::vec3(1.5f, 2.0f, -2.5f)),
-            Cube(crateShader, glm::vec3(1.5f, 0.2f, -1.5f)),
-            Cube(crateShader, glm::vec3(-1.3f, 1.0f, -1.5f))
+            Cube(lightReceiveShader, glm::vec3(2.0f, 5.0f, -15.0f)),
+            Cube(lightReceiveShader, glm::vec3(-1.5f, -2.2f, -2.5f)),
+            Cube(lightReceiveShader, glm::vec3(-3.8f, -2.0f, -12.3f)),
+            Cube(lightReceiveShader, glm::vec3(2.4f, -0.4f, -3.5f)),
+            Cube(lightReceiveShader, glm::vec3(-1.7f, 3.0f, -7.5f)),
+            Cube(lightReceiveShader, glm::vec3(1.3f, -2.0f, -2.5f)),
+            Cube(lightReceiveShader, glm::vec3(1.5f, 2.0f, -2.5f)),
+            Cube(lightReceiveShader, glm::vec3(1.5f, 0.2f, -1.5f)),
+            Cube(lightReceiveShader, glm::vec3(-1.3f, 1.0f, -1.5f))
     };
 
     while (!glfwWindowShouldClose(window.get())) {
@@ -142,13 +142,18 @@ int main() {
         glClearColor(0, 0, 0, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        for (auto &cube: cubes) {
-            cube.Rotation += glm::vec3(deltaTime, 0, 0);
-            cube.Update(deltaTime);
-            cube.Render();
-        }
+        lightSourceCube.Update(deltaTime);
+        lightSourceCube.Render(MainCamera.GetCameraMatrix());
 
-        crateShader->SetMat4("camera", MainCamera.GetCameraMatrix());
+        lightReceiveShader->Use();
+        lightReceiveShader->SetVec3("objectColor", 1.0f, 0.5f, 0.31f);
+        lightReceiveShader->SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
+
+        for (auto &cube: cubes) {
+            cube.Rotation += glm::vec3(deltaTime * 5, 0, 0);
+            cube.Update(deltaTime);
+            cube.Render(MainCamera.GetCameraMatrix());
+        }
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

@@ -31,7 +31,7 @@ namespace Core {
             Model = glm::rotate(Model, glm::radians(Rotation.z), glm::vec3(0, 0, 1));
         }
 
-        virtual void Render() const = 0;
+        virtual void Render(glm::mat4 cameraMatrix) const = 0;
 
         Entity() = default;
 

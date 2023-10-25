@@ -36,11 +36,13 @@ public:
         Core::Entity::Update(deltaTime);
     }
 
-    void Render() const override {
-        glBindVertexArray(VAO);
+    void Render(glm::mat4 cameraMatrix) const override {
 
         Shader->Use();
         Shader->SetMat4("model", Model);
+        Shader->SetMat4("camera", cameraMatrix);
+
+        glBindVertexArray(VAO);
 
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
