@@ -3,6 +3,7 @@
 #include "Log.hpp"
 #include "Cube.hpp"
 #include "Graphics/Shader.hpp"
+#include <cmath>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "imgui.h"
@@ -142,15 +143,18 @@ int main() {
         glClearColor(0, 0, 0, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        lightSourceCube.Position.x = std::sin((float) glfwGetTime()) * 6;
+        lightSourceCube.Position.z = std::cos((float) glfwGetTime()) * 6;
         lightSourceCube.Update(deltaTime);
         lightSourceCube.Render(MainCamera.GetCameraMatrix());
 
         lightReceiveShader->Use();
         lightReceiveShader->SetVec3("objectColor", 1.0f, 0.5f, 0.31f);
         lightReceiveShader->SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
+        lightReceiveShader->SetVec3("lightSourcePos", lightSourceCube.Position);
 
         for (auto &cube: cubes) {
-            cube.Rotation += glm::vec3(deltaTime * 5, 0, 0);
+//            cube.Rotation += glm::vec3(deltaTime * 5, 0, 0);
             cube.Update(deltaTime);
             cube.Render(MainCamera.GetCameraMatrix());
         }
