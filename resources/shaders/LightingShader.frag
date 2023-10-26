@@ -8,6 +8,7 @@ out vec4 fragOutColor;
 uniform vec3 objectColor;
 uniform vec3 lightColor;
 uniform vec3 lightSourcePos;
+uniform vec3 cameraPos;
 
 void main() {
     float ambientStrength = 0.1;
@@ -19,5 +20,12 @@ void main() {
 
     vec3 diffuse = diff * lightColor;
 
-    fragOutColor = vec4((ambient + diffuse) * objectColor, 1.0);
+    float specularStrength = 0.8;
+    vec3 viewDir = normalize(cameraPos - FragPos);
+    vec3 reflectDir = reflect(-lightDir, norm);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+
+    vec3 specular = specularStrength * spec * lightColor;
+
+    fragOutColor = vec4((ambient + diffuse + specular) * objectColor, 1.0);
 }

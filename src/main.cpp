@@ -113,7 +113,7 @@ int main() {
     float deltaTime;
 
     auto lightSourceShader = std::make_shared<Graphics::Shader>("NoTextureShader.vert", "LightSourceShader.frag");
-    Cube lightSourceCube(lightSourceShader, glm::vec3(0, 0, -5));
+    Cube lightSourceCube(lightSourceShader, glm::vec3(2, 0, -5));
 
     auto lightReceiveShader = std::make_shared<Graphics::Shader>("NoTextureShader.vert", "LightingShader.frag");
     Cube cubes[] = {
@@ -143,9 +143,9 @@ int main() {
         glClearColor(0, 0, 0, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        lightSourceCube.Position.x = std::sin((float) glfwGetTime()) * 6;
-        lightSourceCube.Position.y = std::sin((float) glfwGetTime()) * 3;
-        lightSourceCube.Position.z = std::cos((float) glfwGetTime()) * 6;
+        lightSourceCube.Position.x = std::sin((float) glfwGetTime()) * 5;
+        lightSourceCube.Position.y = std::sin((float) glfwGetTime()) * 1;
+        lightSourceCube.Position.z = std::cos((float) glfwGetTime()) * 5;
         lightSourceCube.Update(deltaTime);
         lightSourceCube.Render(MainCamera.GetCameraMatrix());
 
@@ -153,10 +153,10 @@ int main() {
         lightReceiveShader->SetVec3("objectColor", 1.0f, 0.5f, 0.31f);
         lightReceiveShader->SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
         lightReceiveShader->SetVec3("lightSourcePos", lightSourceCube.Position);
-
-
+        lightReceiveShader->SetVec3("cameraPos", MainCamera.Position);
+        
         for (int i = 0; i < sizeof(cubes) / sizeof(Cube); ++i) {
-            cubes[i].Position.x = glm::sin(2 * glm::pi<float>() * 0.5 * glfwGetTime() + i) * 3;
+            cubes[i].Position.x = glm::sin(2 * glm::pi<float>() * 0.05 * glfwGetTime() + i) * 3;
             cubes[i].Update(deltaTime);
             cubes[i].Render(MainCamera.GetCameraMatrix());
         }
