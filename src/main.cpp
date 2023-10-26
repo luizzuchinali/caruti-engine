@@ -119,7 +119,7 @@ int main() {
     Cube cubes[] = {
             Cube(lightReceiveShader, glm::vec3(2.0f, 5.0f, -15.0f)),
             Cube(lightReceiveShader, glm::vec3(-1.5f, -2.2f, -2.5f)),
-            Cube(lightReceiveShader, glm::vec3(-3.8f, -2.0f, -12.3f)),
+            Cube(lightReceiveShader, glm::vec3(-3.8f, -2.0f, -4.3f)),
             Cube(lightReceiveShader, glm::vec3(2.4f, -0.4f, -3.5f)),
             Cube(lightReceiveShader, glm::vec3(-1.7f, 3.0f, -7.5f)),
             Cube(lightReceiveShader, glm::vec3(1.3f, -2.0f, -2.5f)),
@@ -144,6 +144,7 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         lightSourceCube.Position.x = std::sin((float) glfwGetTime()) * 6;
+        lightSourceCube.Position.y = std::sin((float) glfwGetTime()) * 3;
         lightSourceCube.Position.z = std::cos((float) glfwGetTime()) * 6;
         lightSourceCube.Update(deltaTime);
         lightSourceCube.Render(MainCamera.GetCameraMatrix());
@@ -153,10 +154,11 @@ int main() {
         lightReceiveShader->SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
         lightReceiveShader->SetVec3("lightSourcePos", lightSourceCube.Position);
 
-        for (auto &cube: cubes) {
-//            cube.Rotation += glm::vec3(deltaTime * 5, 0, 0);
-            cube.Update(deltaTime);
-            cube.Render(MainCamera.GetCameraMatrix());
+
+        for (int i = 0; i < sizeof(cubes) / sizeof(Cube); ++i) {
+            cubes[i].Position.x = glm::sin(2 * glm::pi<float>() * 0.5 * glfwGetTime() + i) * 3;
+            cubes[i].Update(deltaTime);
+            cubes[i].Render(MainCamera.GetCameraMatrix());
         }
 
         ImGui::Render();
