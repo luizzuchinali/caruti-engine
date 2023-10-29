@@ -32,6 +32,9 @@ void HandleInputCallback(GLFWwindow *windowPtr, int key, [[maybe_unused]] int sc
         glfwSetInputMode(windowPtr, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     else if (isKeyPRelease && glfwGetInputMode(windowPtr, GLFW_CURSOR) == GLFW_CURSOR_NORMAL)
         glfwSetInputMode(windowPtr, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    if (glfwGetKey(windowPtr, GLFW_KEY_R) == GLFW_RELEASE)
+        MainCamera.LockRotation = !MainCamera.LockRotation;
 }
 
 std::shared_ptr<GLFWwindow> CreateWindow() {
@@ -104,6 +107,7 @@ void HandleInput(const std::shared_ptr<GLFWwindow> &window, Camera &camera, floa
     double xPos, yPos;
     glfwGetCursorPos(window.get(), &xPos, &yPos);
     camera.ProcessMouseMovement(xPos, yPos);
+
 }
 
 int main() {
@@ -112,10 +116,10 @@ int main() {
     float lastTime = glfwGetTime();
     float deltaTime;
 
-    auto lightSourceShader = std::make_shared<Graphics::Shader>("NoTextureShader.vert", "LightSourceShader.frag");
+    auto lightSourceShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightSourceShader.frag");
     Cube lightSourceCube(lightSourceShader, glm::vec3(2, 0, -5));
 
-    auto lightReceiveShader = std::make_shared<Graphics::Shader>("NoTextureShader.vert", "LightingShader.frag");
+    auto lightReceiveShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightingShader.frag");
     Cube cubes[] = {
             Cube(lightReceiveShader, glm::vec3(2.0f, 5.0f, -15.0f)),
             Cube(lightReceiveShader, glm::vec3(-1.5f, -2.2f, -2.5f)),
@@ -128,6 +132,11 @@ int main() {
             Cube(lightReceiveShader, glm::vec3(-1.3f, 1.0f, -1.5f))
     };
 
+
+    static float lightAmbient[3] = {0, 0, 0};
+    static float lightDiffuse[3] = {0.5f, 0.5f, 0.5f};
+    static float lightSpecular[3] = {1.0f, 1.0f, 1.0f};
+
     while (!glfwWindowShouldClose(window.get())) {
         float currentTime = glfwGetTime();
         deltaTime = currentTime - lastTime;
@@ -136,7 +145,12 @@ int main() {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-        ImGui::ShowDemoWindow();
+//      ImGui::ShowDemoWindow();
+
+        ImGui::SeparatorText("Light options");
+        ImGui::InputFloat3("Ambient", lightAmbient);
+        ImGui::InputFloat3("Diffuse", lightDiffuse);
+        ImGui::InputFloat3("Specular", lightSpecular);
 
         HandleInput(window, MainCamera, deltaTime);
 
@@ -156,9 +170,9 @@ int main() {
         lightReceiveShader->SetVec3("material.specular", 0.5f, 0.5f, 0.5f);
         lightReceiveShader->SetFloat("material.shininess", 32.0f);
 
-        lightReceiveShader->SetVec3("light.ambient", 0, 0, 0);
-        lightReceiveShader->SetVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
-        lightReceiveShader->SetVec3("light.specular", 1.0f, 1.0f, 1.0f);
+        lightReceiveShader->SetVec3("light.ambient", lightAmbient[0], lightAmbient[1], lightAmbient[2]);
+        lightReceiveShader->SetVec3("light.diffuse", lightDiffuse[0], lightDiffuse[1], lightDiffuse[2]);
+        lightReceiveShader->SetVec3("light.specular", lightSpecular[0], lightSpecular[1], lightSpecular[2]);
         lightReceiveShader->SetVec3("light.position", lightSourceCube.Position);
 
         lightReceiveShader->SetVec3("cameraPos", MainCamera.Position);

@@ -25,6 +25,8 @@ public:
     glm::vec3 Right{};
     glm::vec3 WorldUp{};
 
+    bool LockRotation = false;
+
     float Yaw;
     float Pitch;
 
@@ -90,8 +92,8 @@ public:
         xoffset *= MouseSensitivity;
         yoffset *= MouseSensitivity;
 
-        LastX = xPos;
         LastY = yPos;
+        LastX = xPos;
 
         Yaw += xoffset;
         Pitch += yoffset;
