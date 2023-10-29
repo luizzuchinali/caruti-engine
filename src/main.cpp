@@ -150,11 +150,19 @@ int main() {
         lightSourceCube.Render(MainCamera.GetCameraMatrix());
 
         lightReceiveShader->Use();
-        lightReceiveShader->SetVec3("objectColor", 1.0f, 0.5f, 0.31f);
-        lightReceiveShader->SetVec3("lightColor", 1.0f, 1.0f, 1.0f);
-        lightReceiveShader->SetVec3("lightSourcePos", lightSourceCube.Position);
+
+        lightReceiveShader->SetVec3("material.ambient", 1.0f, 0.5f, 0.31f);
+        lightReceiveShader->SetVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
+        lightReceiveShader->SetVec3("material.specular", 0.5f, 0.5f, 0.5f);
+        lightReceiveShader->SetFloat("material.shininess", 32.0f);
+
+        lightReceiveShader->SetVec3("light.ambient", 0, 0, 0);
+        lightReceiveShader->SetVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
+        lightReceiveShader->SetVec3("light.specular", 1.0f, 1.0f, 1.0f);
+        lightReceiveShader->SetVec3("light.position", lightSourceCube.Position);
+
         lightReceiveShader->SetVec3("cameraPos", MainCamera.Position);
-        
+
         for (int i = 0; i < sizeof(cubes) / sizeof(Cube); ++i) {
             cubes[i].Position.x = glm::sin(2 * glm::pi<float>() * 0.05 * glfwGetTime() + i) * 3;
             cubes[i].Update(deltaTime);
