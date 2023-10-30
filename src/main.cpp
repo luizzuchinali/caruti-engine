@@ -120,22 +120,29 @@ int main() {
     Cube lightSourceCube(lightSourceShader, glm::vec3(2, 0, -5));
 
     auto lightReceiveShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightingShader.frag");
+
+    lightReceiveShader->Use();
+    Graphics::Texture crateTex("crate/Crate_Diffuse.jpg", GL_RGB, GL_TEXTURE0);
+    lightReceiveShader->SetTexture("material.diffuse", crateTex);
+
+    Graphics::Texture crateSpecularTex("crate/Crate_SpecularMap.png", GL_RGBA, GL_TEXTURE1);
+    lightReceiveShader->SetTexture("material.specular", crateSpecularTex);
+
     Cube cubes[] = {
-            Cube(lightReceiveShader, glm::vec3(2.0f, 5.0f, -15.0f)),
-            Cube(lightReceiveShader, glm::vec3(-1.5f, -2.2f, -2.5f)),
-            Cube(lightReceiveShader, glm::vec3(-3.8f, -2.0f, -4.3f)),
-            Cube(lightReceiveShader, glm::vec3(2.4f, -0.4f, -3.5f)),
-            Cube(lightReceiveShader, glm::vec3(-1.7f, 3.0f, -7.5f)),
-            Cube(lightReceiveShader, glm::vec3(1.3f, -2.0f, -2.5f)),
-            Cube(lightReceiveShader, glm::vec3(1.5f, 2.0f, -2.5f)),
-            Cube(lightReceiveShader, glm::vec3(1.5f, 0.2f, -1.5f)),
-            Cube(lightReceiveShader, glm::vec3(-1.3f, 1.0f, -1.5f))
+            Cube(lightReceiveShader, glm::vec3(-1.7f, 2.0f, -7.5f)),
+            Cube(lightReceiveShader, glm::vec3(0, 0, 0)),
+            Cube(lightReceiveShader, glm::vec3(0, -4, 0)),
+            Cube(lightReceiveShader, glm::vec3(0, 4, 0)),
+            Cube(lightReceiveShader, glm::vec3(0, 6, 0)),
+            Cube(lightReceiveShader, glm::vec3(0, -6, 0)),
+            Cube(lightReceiveShader, glm::vec3(2, 2, 2)),
+            Cube(lightReceiveShader, glm::vec3(-2, -2, -2)),
     };
 
 
-    static float lightAmbient[3] = {0, 0, 0};
-    static float lightDiffuse[3] = {0.5f, 0.5f, 0.5f};
-    static float lightSpecular[3] = {1.0f, 1.0f, 1.0f};
+    static float lightAmbient[3] = {0.1, 0.1, 0.1};
+    static float lightDiffuse[3] = {1, 1, 1};
+    static float lightSpecular[3] = {1.0, 1.0, 1.0};
 
     while (!glfwWindowShouldClose(window.get())) {
         float currentTime = glfwGetTime();
@@ -164,12 +171,7 @@ int main() {
         lightSourceCube.Render(MainCamera.GetCameraMatrix());
 
         lightReceiveShader->Use();
-
-        lightReceiveShader->SetVec3("material.ambient", 1.0f, 0.5f, 0.31f);
-        lightReceiveShader->SetVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
-        lightReceiveShader->SetVec3("material.specular", 0.5f, 0.5f, 0.5f);
-        lightReceiveShader->SetFloat("material.shininess", 32.0f);
-
+        lightReceiveShader->SetFloat("material.shininess", 64.0f);
         lightReceiveShader->SetVec3("light.ambient", lightAmbient[0], lightAmbient[1], lightAmbient[2]);
         lightReceiveShader->SetVec3("light.diffuse", lightDiffuse[0], lightDiffuse[1], lightDiffuse[2]);
         lightReceiveShader->SetVec3("light.specular", lightSpecular[0], lightSpecular[1], lightSpecular[2]);

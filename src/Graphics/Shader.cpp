@@ -68,6 +68,7 @@ namespace Graphics {
     }
 
     void Shader::SetTexture(const char *uName, const Texture &texture) const {
+        texture.ActivateAndBind();
         this->SetInt(uName, texture.GetIndex());
     }
 
