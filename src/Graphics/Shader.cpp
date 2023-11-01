@@ -84,5 +84,11 @@ namespace Graphics {
         glUniform3f(glGetUniformLocation(_id, name.c_str()), x, y, z);
     }
 
+    void Shader::SetVec4(const std::string &name, glm::vec4 &vec) const {
+        glUniform4fv(glGetUniformLocation(_id, name.c_str()), 1, &vec[0]);
+    }
 
+    void Shader::SetVec4(const std::string &name, float x, float y, float z, float w) const {
+        glUniform4f(glGetUniformLocation(_id, name.c_str()), x, y, z, w);
+    }
 }

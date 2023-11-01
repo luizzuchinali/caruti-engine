@@ -28,6 +28,10 @@ namespace Graphics {
 
         void SetVec3(const std::string &name, float x, float y, float z) const;
 
+        void SetVec4(const std::string &name, glm::vec4 &vec) const;
+
+        void SetVec4(const std::string &name, float x, float y, float z, float w) const;
+
         ~Shader() {
             glDeleteProgram(_id);
         }
@@ -38,5 +42,6 @@ namespace Graphics {
         static unsigned int CreateShader(GLenum type, const std::string &fileName);
 
         void CreateProgram(unsigned int vertex, unsigned int fragment);
+
     };
 }

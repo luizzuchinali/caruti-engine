@@ -116,8 +116,8 @@ int main() {
     float lastTime = glfwGetTime();
     float deltaTime;
 
-    auto lightSourceShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightSourceShader.frag");
-    Cube lightSourceCube(lightSourceShader, glm::vec3(2, 0, -5));
+//    auto lightSourceShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightSourceShader.frag");
+//    Cube lightSourceCube(lightSourceShader, glm::vec3(2, 0, -5));
 
     auto lightReceiveShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightingShader.frag");
 
@@ -139,7 +139,6 @@ int main() {
             Cube(lightReceiveShader, glm::vec3(-2, -2, -2)),
     };
 
-
     static float lightAmbient[3] = {0.1, 0.1, 0.1};
     static float lightDiffuse[3] = {1, 1, 1};
     static float lightSpecular[3] = {1.0, 1.0, 1.0};
@@ -154,28 +153,29 @@ int main() {
         ImGui::NewFrame();
 //      ImGui::ShowDemoWindow();
 
-        ImGui::SeparatorText("Light options");
-        ImGui::InputFloat3("Ambient", lightAmbient);
-        ImGui::InputFloat3("Diffuse", lightDiffuse);
-        ImGui::InputFloat3("Specular", lightSpecular);
+//        ImGui::SeparatorText("Light options");
+//        ImGui::InputFloat3("Ambient", lightAmbient);
+//        ImGui::InputFloat3("Diffuse", lightDiffuse);
+//        ImGui::InputFloat3("Specular", lightSpecular);
 
         HandleInput(window, MainCamera, deltaTime);
 
         glClearColor(0, 0, 0, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        lightSourceCube.Position.x = std::sin((float) glfwGetTime()) * 5;
-        lightSourceCube.Position.y = std::sin((float) glfwGetTime()) * 1;
-        lightSourceCube.Position.z = std::cos((float) glfwGetTime()) * 5;
-        lightSourceCube.Update(deltaTime);
-        lightSourceCube.Render(MainCamera.GetCameraMatrix());
+//        lightSourceCube.Position.x = std::sin((float) glfwGetTime()) * 5;
+//        lightSourceCube.Position.y = std::sin((float) glfwGetTime()) * 1;
+//        lightSourceCube.Position.z = std::cos((float) glfwGetTime()) * 5;
+//        lightSourceCube.Update(deltaTime);
+//        lightSourceCube.Render(MainCamera.GetCameraMatrix());
 
         lightReceiveShader->Use();
         lightReceiveShader->SetFloat("material.shininess", 64.0f);
         lightReceiveShader->SetVec3("light.ambient", lightAmbient[0], lightAmbient[1], lightAmbient[2]);
         lightReceiveShader->SetVec3("light.diffuse", lightDiffuse[0], lightDiffuse[1], lightDiffuse[2]);
         lightReceiveShader->SetVec3("light.specular", lightSpecular[0], lightSpecular[1], lightSpecular[2]);
-        lightReceiveShader->SetVec3("light.position", lightSourceCube.Position);
+        lightReceiveShader->SetVec4("light.vector", glm::sin(glfwGetTime()), -1, glm::cos(glfwGetTime()), 0.0);
+//        lightReceiveShader->SetVec3("light.position", lightSourceCube.Position);
 
         lightReceiveShader->SetVec3("cameraPos", MainCamera.Position);
 
