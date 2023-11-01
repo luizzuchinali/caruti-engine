@@ -116,8 +116,8 @@ int main() {
     float lastTime = glfwGetTime();
     float deltaTime;
 
-//    auto lightSourceShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightSourceShader.frag");
-//    Cube lightSourceCube(lightSourceShader, glm::vec3(2, 0, -5));
+    auto lightSourceShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightSourceShader.frag");
+    Cube lightSourceCube(lightSourceShader, glm::vec3(0, 1.5, 0));
 
     auto lightReceiveShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightingShader.frag");
 
@@ -130,12 +130,16 @@ int main() {
 
     Cube cubes[] = {
             Cube(lightReceiveShader, glm::vec3(-1.7f, 2.0f, -7.5f)),
+            Cube(lightReceiveShader, glm::vec3(-1.7f, 2.0f, -15.5f)),
             Cube(lightReceiveShader, glm::vec3(0, 0, 0)),
             Cube(lightReceiveShader, glm::vec3(0, -4, 0)),
             Cube(lightReceiveShader, glm::vec3(0, 4, 0)),
             Cube(lightReceiveShader, glm::vec3(0, 6, 0)),
             Cube(lightReceiveShader, glm::vec3(0, -6, 0)),
             Cube(lightReceiveShader, glm::vec3(2, 2, 2)),
+            Cube(lightReceiveShader, glm::vec3(2, 3, 2)),
+            Cube(lightReceiveShader, glm::vec3(2, 2, 3)),
+            Cube(lightReceiveShader, glm::vec3(2, 3, 3)),
             Cube(lightReceiveShader, glm::vec3(-2, -2, -2)),
     };
 
@@ -163,19 +167,23 @@ int main() {
         glClearColor(0, 0, 0, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-//        lightSourceCube.Position.x = std::sin((float) glfwGetTime()) * 5;
-//        lightSourceCube.Position.y = std::sin((float) glfwGetTime()) * 1;
-//        lightSourceCube.Position.z = std::cos((float) glfwGetTime()) * 5;
-//        lightSourceCube.Update(deltaTime);
-//        lightSourceCube.Render(MainCamera.GetCameraMatrix());
+        lightSourceCube.Position.x = std::sin((float) glfwGetTime()) * 5;
+        lightSourceCube.Position.y = std::sin((float) glfwGetTime()) * 1;
+        lightSourceCube.Position.z = std::cos((float) glfwGetTime()) * 5;
+        lightSourceCube.Update(deltaTime);
+        lightSourceCube.Render(MainCamera.GetCameraMatrix());
 
         lightReceiveShader->Use();
         lightReceiveShader->SetFloat("material.shininess", 64.0f);
         lightReceiveShader->SetVec3("light.ambient", lightAmbient[0], lightAmbient[1], lightAmbient[2]);
         lightReceiveShader->SetVec3("light.diffuse", lightDiffuse[0], lightDiffuse[1], lightDiffuse[2]);
         lightReceiveShader->SetVec3("light.specular", lightSpecular[0], lightSpecular[1], lightSpecular[2]);
-        lightReceiveShader->SetVec4("light.vector", glm::sin(glfwGetTime()), -1, glm::cos(glfwGetTime()), 0.0);
-//        lightReceiveShader->SetVec3("light.position", lightSourceCube.Position);
+        lightReceiveShader->SetFloat("light.constant", 1.0f);
+        lightReceiveShader->SetFloat("light.linear", 0.09f);
+        lightReceiveShader->SetFloat("light.quadratic", 0.032f);
+//        lightReceiveShader->SetVec4("light.vector", glm::sin(glfwGetTime()), -1, glm::cos(glfwGetTime()), 0.0);
+        auto lightPos = glm::vec4(lightSourceCube.Position, 1);
+        lightReceiveShader->SetVec4("light.vector", lightPos);
 
         lightReceiveShader->SetVec3("cameraPos", MainCamera.Position);
 
