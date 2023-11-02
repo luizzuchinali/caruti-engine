@@ -12,6 +12,7 @@
 #include "Camera.hpp"
 
 #include <memory>
+#include <sstream>
 
 const int WINDOW_WIDTH = 2560, WINDOW_HEIGHT = 1440;
 auto MainCamera = Camera(glm::vec3(0, 0, -20));
@@ -116,8 +117,13 @@ int main() {
     float lastTime = glfwGetTime();
     float deltaTime;
 
-//    auto lightSourceShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightSourceShader.frag");
-//    Cube lightSourceCube(lightSourceShader, glm::vec3(0, 1.5, 0));
+    auto lightSourceShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightSourceShader.frag");
+    Cube pointLights[] = {
+            Cube(lightSourceShader, glm::vec3(0, 1.5, 0)),
+            Cube(lightSourceShader, glm::vec3(0, 5, 5)),
+            Cube(lightSourceShader, glm::vec3(3, 3, -5)),
+            Cube(lightSourceShader, glm::vec3(0, -5, -3))
+    };
 
     auto lightReceiveShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightingShader.frag");
 
@@ -143,10 +149,6 @@ int main() {
             Cube(lightReceiveShader, glm::vec3(-2, -2, -2)),
     };
 
-    static float lightAmbient[3] = {0.1, 0.1, 0.1};
-    static float lightDiffuse[3] = {1, 1, 1};
-    static float lightSpecular[3] = {1.0, 1.0, 1.0};
-
     while (!glfwWindowShouldClose(window.get())) {
         float currentTime = glfwGetTime();
         deltaTime = currentTime - lastTime;
@@ -156,11 +158,6 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 //      ImGui::ShowDemoWindow();
-
-//        ImGui::SeparatorText("Light options");
-//        ImGui::InputFloat3("Ambient", lightAmbient);
-//        ImGui::InputFloat3("Diffuse", lightDiffuse);
-//        ImGui::InputFloat3("Specular", lightSpecular);
 
         HandleInput(window, MainCamera, deltaTime);
 
@@ -174,22 +171,43 @@ int main() {
 //        lightSourceCube.Render(MainCamera.GetCameraMatrix());
 
         lightReceiveShader->Use();
-        lightReceiveShader->SetFloat("material.shininess", 64.0f);
-        lightReceiveShader->SetVec3("light.ambient", lightAmbient[0], lightAmbient[1], lightAmbient[2]);
-        lightReceiveShader->SetVec3("light.diffuse", lightDiffuse[0], lightDiffuse[1], lightDiffuse[2]);
-        lightReceiveShader->SetVec3("light.specular", lightSpecular[0], lightSpecular[1], lightSpecular[2]);
-        lightReceiveShader->SetFloat("light.constant", 1.0f);
-        lightReceiveShader->SetFloat("light.linear", 0.09f);
-        lightReceiveShader->SetFloat("light.quadratic", 0.032f);
-        lightReceiveShader->SetVec3("light.position", MainCamera.Position);
-        lightReceiveShader->SetVec3("light.direction", MainCamera.Front);
-        lightReceiveShader->SetFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
-        lightReceiveShader->SetFloat("light.cutOff", glm::cos(glm::radians(17.5f)));
-//        lightReceiveShader->SetVec4("light.vector", glm::sin(glfwGetTime()), -1, glm::cos(glfwGetTime()), 0.0);
-//        auto lightPos = glm::vec4(lightSourceCube.Position, 1);
-//        lightReceiveShader->SetVec4("light.vector", lightPos);
-
         lightReceiveShader->SetVec3("cameraPos", MainCamera.Position);
+        lightReceiveShader->SetFloat("material.shininess", 32.0f);
+
+        lightReceiveShader->SetVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+        lightReceiveShader->SetVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
+        lightReceiveShader->SetVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
+        lightReceiveShader->SetVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+
+        for (int i = 0; i < sizeof(pointLights) / sizeof(Cube); i++) {
+
+            pointLights[i].Update(deltaTime);
+            pointLights[i].Render(MainCamera.GetCameraMatrix());
+
+            std::ostringstream name;
+            name << "pointLights[" << i << "].";
+            auto nameStr = name.str();
+
+            lightReceiveShader->Use();
+            lightReceiveShader->SetVec3(nameStr + "position", pointLights[0].Position);
+            lightReceiveShader->SetVec3(nameStr + "ambient", 0.05f, 0.05f, 0.05f);
+            lightReceiveShader->SetVec3(nameStr + "diffuse", 0.8f, 0.8f, 0.8f);
+            lightReceiveShader->SetVec3(nameStr + "specular", 1.0f, 1.0f, 1.0f);
+            lightReceiveShader->SetFloat(nameStr + "constant", 1.0f);
+            lightReceiveShader->SetFloat(nameStr + "linear", 0.09f);
+            lightReceiveShader->SetFloat(nameStr + "quadratic", 0.032f);
+        }
+
+        lightReceiveShader->SetVec3("spotLight.position", MainCamera.Position);
+        lightReceiveShader->SetVec3("spotLight.direction", MainCamera.Front);
+        lightReceiveShader->SetVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
+        lightReceiveShader->SetVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
+        lightReceiveShader->SetVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+        lightReceiveShader->SetFloat("spotLight.constant", 1.0f);
+        lightReceiveShader->SetFloat("spotLight.linear", 0.09f);
+        lightReceiveShader->SetFloat("spotLight.quadratic", 0.032f);
+        lightReceiveShader->SetFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+        lightReceiveShader->SetFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
 
         for (int i = 0; i < sizeof(cubes) / sizeof(Cube); ++i) {
             cubes[i].Position.x = glm::sin(2 * glm::pi<float>() * 0.05 * glfwGetTime() + i) * 3;
