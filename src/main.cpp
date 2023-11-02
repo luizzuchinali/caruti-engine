@@ -116,8 +116,8 @@ int main() {
     float lastTime = glfwGetTime();
     float deltaTime;
 
-    auto lightSourceShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightSourceShader.frag");
-    Cube lightSourceCube(lightSourceShader, glm::vec3(0, 1.5, 0));
+//    auto lightSourceShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightSourceShader.frag");
+//    Cube lightSourceCube(lightSourceShader, glm::vec3(0, 1.5, 0));
 
     auto lightReceiveShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightingShader.frag");
 
@@ -167,11 +167,11 @@ int main() {
         glClearColor(0, 0, 0, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        lightSourceCube.Position.x = std::sin((float) glfwGetTime()) * 5;
-        lightSourceCube.Position.y = std::sin((float) glfwGetTime()) * 1;
-        lightSourceCube.Position.z = std::cos((float) glfwGetTime()) * 5;
-        lightSourceCube.Update(deltaTime);
-        lightSourceCube.Render(MainCamera.GetCameraMatrix());
+//        lightSourceCube.Position.x = std::sin((float) glfwGetTime()) * 5;
+//        lightSourceCube.Position.y = std::sin((float) glfwGetTime()) * 1;
+//        lightSourceCube.Position.z = std::cos((float) glfwGetTime()) * 5;
+//        lightSourceCube.Update(deltaTime);
+//        lightSourceCube.Render(MainCamera.GetCameraMatrix());
 
         lightReceiveShader->Use();
         lightReceiveShader->SetFloat("material.shininess", 64.0f);
@@ -181,9 +181,13 @@ int main() {
         lightReceiveShader->SetFloat("light.constant", 1.0f);
         lightReceiveShader->SetFloat("light.linear", 0.09f);
         lightReceiveShader->SetFloat("light.quadratic", 0.032f);
+        lightReceiveShader->SetVec3("light.position", MainCamera.Position);
+        lightReceiveShader->SetVec3("light.direction", MainCamera.Front);
+        lightReceiveShader->SetFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
+        lightReceiveShader->SetFloat("light.cutOff", glm::cos(glm::radians(17.5f)));
 //        lightReceiveShader->SetVec4("light.vector", glm::sin(glfwGetTime()), -1, glm::cos(glfwGetTime()), 0.0);
-        auto lightPos = glm::vec4(lightSourceCube.Position, 1);
-        lightReceiveShader->SetVec4("light.vector", lightPos);
+//        auto lightPos = glm::vec4(lightSourceCube.Position, 1);
+//        lightReceiveShader->SetVec4("light.vector", lightPos);
 
         lightReceiveShader->SetVec3("cameraPos", MainCamera.Position);
 

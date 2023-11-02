@@ -11,9 +11,12 @@ struct Material {
 };
 
 struct Light {
-    //    vec3 position;
-    //    vec3 direction;
     vec4 vector;
+
+    vec3 position;
+    vec3 direction;
+    float cutOff;
+    float outerCutOff;
 
     vec3 ambient;
     vec3 diffuse;
@@ -32,44 +35,75 @@ out vec4 FragOutColor;
 
 void main() {
 
-    vec3 lightDir;
-    if (light.vector.w == 0) {
-        lightDir = normalize(-light.vector.xyz);
+    // ambient
+    vec3 ambient = light.ambient * texture(material.diffuse, TexCoords).rgb;
 
-        vec3 ambient = light.ambient * vec3(texture2D(material.diffuse, TexCoords));
+    // diffuse
+    vec3 norm = normalize(Normal);
+    vec3 lightDir = normalize(light.position - FragPos);
+    float diff = max(dot(norm, lightDir), 0.0);
+    vec3 diffuse = light.diffuse * diff * texture(material.diffuse, TexCoords).rgb;
 
-        vec3 norm = normalize(Normal);
-        float diff = max(dot(norm, lightDir), 0.0);
-        vec3 diffuse = light.diffuse * diff * vec3(texture2D(material.diffuse, TexCoords));
+    // specular
+    vec3 viewDir = normalize(cameraPos - FragPos);
+    vec3 reflectDir = reflect(-lightDir, norm);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+    vec3 specular = light.specular * spec * texture(material.specular, TexCoords).rgb;
 
-        vec3 viewDir = normalize(cameraPos - FragPos);
-        vec3 reflectDir = reflect(-lightDir, norm);
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-        vec3 specular = light.specular * spec * vec3(texture2D(material.specular, TexCoords));
+    // spotlight (soft edges)
+    float theta = dot(lightDir, normalize(-light.direction));
+    float epsilon = (light.cutOff - light.outerCutOff);
+    float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
+    diffuse  *= intensity;
+    specular *= intensity;
 
-        FragOutColor = vec4(ambient + diffuse + specular, 1.0);
-    }
-    else if (light.vector.w == 1.0) {
-        float distance = length(light.vector.xyz - FragPos);
-        float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+    // attenuation
+    float distance    = length(light.position - FragPos);
+    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+    ambient  *= attenuation;
+    diffuse   *= attenuation;
+    specular *= attenuation;
 
-        lightDir = normalize(light.vector.xyz - FragPos);
+    FragOutColor = vec4(ambient + diffuse + specular, 1.0);
 
-        vec3 ambient = light.ambient * vec3(texture2D(material.diffuse, TexCoords));
-
-        vec3 norm = normalize(Normal);
-        float diff = max(dot(norm, lightDir), 0.0);
-        vec3 diffuse = light.diffuse * diff * vec3(texture2D(material.diffuse, TexCoords));
-
-        vec3 viewDir = normalize(cameraPos - FragPos);
-        vec3 reflectDir = reflect(-lightDir, norm);
-        float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-        vec3 specular = light.specular * spec * vec3(texture2D(material.specular, TexCoords));
-
-        ambient *= attenuation;
-        diffuse *= attenuation;
-        specular *= attenuation;
-
-        FragOutColor = vec4(ambient + diffuse + specular, 1.0);
-    }
+    //    vec3 lightDir;
+    //    if (light.vector.w == 0) {
+    //        lightDir = normalize(-light.vector.xyz);
+    //
+    //        vec3 ambient = light.ambient * vec3(texture2D(material.diffuse, TexCoords));
+    //
+    //        vec3 norm = normalize(Normal);
+    //        float diff = max(dot(norm, lightDir), 0.0);
+    //        vec3 diffuse = light.diffuse * diff * vec3(texture2D(material.diffuse, TexCoords));
+    //
+    //        vec3 viewDir = normalize(cameraPos - FragPos);
+    //        vec3 reflectDir = reflect(-lightDir, norm);
+    //        float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+    //        vec3 specular = light.specular * spec * vec3(texture2D(material.specular, TexCoords));
+    //
+    //        FragOutColor = vec4(ambient + diffuse + specular, 1.0);
+    //    }
+    //    else if (light.vector.w == 1.0) {
+    //        float distance = length(light.vector.xyz - FragPos);
+    //        float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+    //
+    //        lightDir = normalize(light.vector.xyz - FragPos);
+    //
+    //        vec3 ambient = light.ambient * vec3(texture2D(material.diffuse, TexCoords));
+    //
+    //        vec3 norm = normalize(Normal);
+    //        float diff = max(dot(norm, lightDir), 0.0);
+    //        vec3 diffuse = light.diffuse * diff * vec3(texture2D(material.diffuse, TexCoords));
+    //
+    //        vec3 viewDir = normalize(cameraPos - FragPos);
+    //        vec3 reflectDir = reflect(-lightDir, norm);
+    //        float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+    //        vec3 specular = light.specular * spec * vec3(texture2D(material.specular, TexCoords));
+    //
+    //        ambient *= attenuation;
+    //        diffuse *= attenuation;
+    //        specular *= attenuation;
+    //
+    //        FragOutColor = vec4(ambient + diffuse + specular, 1.0);
+    //    }
 }
