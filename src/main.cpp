@@ -3,14 +3,13 @@
 #include "Log.hpp"
 #include "Cube.hpp"
 #include "Graphics/Shader.hpp"
-#include <cmath>
-#include <glm/gtc/matrix_transform.hpp>
-
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "Camera.hpp"
+#include "Graphics/Model.hpp"
 
+#include <cmath>
 #include <memory>
 #include <sstream>
 
@@ -117,7 +116,11 @@ int main() {
     float lastTime = glfwGetTime();
     float deltaTime;
 
+    auto backpackShader = Graphics::Shader("ModelLoading.vert", "ModelLoading.frag");
+    Graphics::Model backpack("resources/models/backpack/backpack.obj");
+
     auto lightSourceShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightSourceShader.frag");
+    lightSourceShader->Use();
     Cube pointLights[] = {
             Cube(lightSourceShader, glm::vec3(0, 1.5, 0)),
             Cube(lightSourceShader, glm::vec3(0, 5, 5)),
@@ -126,12 +129,11 @@ int main() {
     };
 
     auto lightReceiveShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightingShader.frag");
-
     lightReceiveShader->Use();
-    Graphics::Texture crateTex("crate/Crate_Diffuse.jpg", GL_RGB, GL_TEXTURE0);
+    Graphics::Texture crateTex("crate/Crate_Diffuse.jpg", GL_RGB, GL_TEXTURE2);
     lightReceiveShader->SetTexture("material.diffuse", crateTex);
 
-    Graphics::Texture crateSpecularTex("crate/Crate_SpecularMap.png", GL_RGBA, GL_TEXTURE1);
+    Graphics::Texture crateSpecularTex("crate/Crate_SpecularMap.png", GL_RGBA, GL_TEXTURE3);
     lightReceiveShader->SetTexture("material.specular", crateSpecularTex);
 
     Cube cubes[] = {
@@ -164,11 +166,12 @@ int main() {
         glClearColor(0, 0, 0, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-//        lightSourceCube.Position.x = std::sin((float) glfwGetTime()) * 5;
-//        lightSourceCube.Position.y = std::sin((float) glfwGetTime()) * 1;
-//        lightSourceCube.Position.z = std::cos((float) glfwGetTime()) * 5;
-//        lightSourceCube.Update(deltaTime);
-//        lightSourceCube.Render(MainCamera.GetCameraMatrix());
+        backpackShader.Use();
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, -3.0f));
+        backpackShader.SetMat4("model", model);
+        backpackShader.SetMat4("camera", MainCamera.GetCameraMatrix());
+        backpack.Draw(backpackShader);
 
         lightReceiveShader->Use();
         lightReceiveShader->SetVec3("cameraPos", MainCamera.Position);
@@ -180,7 +183,6 @@ int main() {
         lightReceiveShader->SetVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
 
         for (int i = 0; i < sizeof(pointLights) / sizeof(Cube); i++) {
-
             pointLights[i].Update(deltaTime);
             pointLights[i].Render(MainCamera.GetCameraMatrix());
 

@@ -2,7 +2,6 @@
 
 #include <string>
 #include "File.hpp"
-#include "glad/glad.h"
 #include "Texture.hpp"
 #include "Log.hpp"
 #include "glm/glm.hpp"

@@ -4,6 +4,7 @@
 #include "glm/vec3.hpp"
 #include "glm/trigonometric.hpp"
 #include "glm/ext/matrix_transform.hpp"
+#include "glm/ext/matrix_clip_space.hpp"
 
 enum ECameraMovement {
     Forward,
