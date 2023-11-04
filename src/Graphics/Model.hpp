@@ -12,6 +12,12 @@ namespace Graphics {
     public:
         explicit Model(const char *path) {
             LoadModel(path);
+
+//            for (auto &tex: TexturesLoaded) {
+//                fmt::print("Id {} ", tex.Id);
+//                fmt::print("Type {} ", tex.Type);
+//                fmt::print("Path {}\n", tex.Path);
+//            }
         }
 
         void Draw(Graphics::Shader &shader);

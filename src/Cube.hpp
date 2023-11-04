@@ -34,12 +34,8 @@ public:
 
         glBindVertexArray(0);
     }
-
-    void Update(const float &deltaTime) override {
-        Core::Entity::Update(deltaTime);
-    }
-
-    void Render(glm::mat4 cameraMatrix) const override {
+    
+    void Render(glm::mat4 cameraMatrix) override {
 
         Shader->Use();
         Shader->SetMat4("model", Model);

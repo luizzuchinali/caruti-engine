@@ -31,7 +31,12 @@ namespace Core {
             Model = glm::scale(Model, Scale);
         }
 
-        virtual void Render(glm::mat4 cameraMatrix) const = 0;
+        virtual void Render(glm::mat4 cameraMatrix) {
+        }
+
+        virtual void UIRender() {
+
+        }
 
         Entity() = default;
 

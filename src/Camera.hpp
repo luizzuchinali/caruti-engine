@@ -15,7 +15,7 @@ enum ECameraMovement {
 
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
-const float SPEED = 10.0f;
+const float SPEED = 200.0f;
 const float SENSITIVITY = 0.1f;
 
 class Camera {
@@ -66,7 +66,7 @@ public:
                 glm::radians(45.0f),
                 (float) 16 / 9,
                 0.1f,
-                2000.0f
+                5000.0f
         );
     }
 

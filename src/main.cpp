@@ -8,6 +8,7 @@
 #include "backends/imgui_impl_opengl3.h"
 #include "Camera.hpp"
 #include "Graphics/Model.hpp"
+#include "Core/DirectionalLight.hpp"
 
 #include <cmath>
 #include <memory>
@@ -111,7 +112,6 @@ void HandleInput(const std::shared_ptr<GLFWwindow> &window, Camera &camera, floa
 }
 
 int main() {
-
     auto window = CreateWindow();
     float lastTime = glfwGetTime();
     float deltaTime;
@@ -119,18 +119,20 @@ int main() {
 //    auto backpackShader = Graphics::Shader("ModelLoading.vert", "ModelLoading.frag");
 //    Graphics::Model backpack("resources/models/backpack/backpack.obj");
 
-//    auto lightSourceShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightSourceShader.frag");
-//    lightSourceShader->Use();
-//    Cube pointLights[] = {
-//            Cube(lightSourceShader, glm::vec3(0, 1.5, 0)),
-//            Cube(lightSourceShader, glm::vec3(0, 5, 5)),
-//            Cube(lightSourceShader, glm::vec3(3, 3, -5)),
-//            Cube(lightSourceShader, glm::vec3(0, -5, -3))
-//    };
+    auto lightSourceShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightSourceShader.frag");
+    lightSourceShader->Use();
+    Cube pointLights[] = {
+            Cube(lightSourceShader, glm::vec3(-50, 50, -50), glm::vec3(0), glm::vec3(30)),
+            Cube(lightSourceShader, glm::vec3(-40, 50, 50), glm::vec3(0), glm::vec3(30)),
+            Cube(lightSourceShader, glm::vec3(55, 50, -50), glm::vec3(0), glm::vec3(30)),
+            Cube(lightSourceShader, glm::vec3(55, 50, 50), glm::vec3(0), glm::vec3(30))
+    };
 
     auto litShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightingShader.frag");
     Graphics::Model sponza("resources/models/sponza/sponza.obj");
     litShader->Use();
+
+    Core::DirectionalLight directionalLight;
 
     while (!glfwWindowShouldClose(window.get())) {
         float currentTime = glfwGetTime();
@@ -140,7 +142,8 @@ int main() {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-//      ImGui::ShowDemoWindow();
+
+        directionalLight.UIRender();
 
         HandleInput(window, MainCamera, deltaTime);
 
@@ -151,46 +154,44 @@ int main() {
         litShader->SetVec3("cameraPos", MainCamera.Position);
         litShader->SetFloat("material.shininess", 32.0f);
 
-        litShader->SetVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-        litShader->SetVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
-        litShader->SetVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
-        litShader->SetVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+        litShader->SetVec3("dirLight.direction", directionalLight.Direction);
+        litShader->SetVec3("dirLight.ambient", directionalLight.Ambient);
+        litShader->SetVec3("dirLight.diffuse", directionalLight.Diffuse);
+        litShader->SetVec3("dirLight.specular", directionalLight.Specular);
 
-//        for (int i = 0; i < sizeof(pointLights) / sizeof(Cube); i++) {
-//            pointLights[i].Update(deltaTime);
-//            pointLights[i].Render(MainCamera.GetCameraMatrix());
-//
-//            std::ostringstream name;
-//            name << "pointLights[" << i << "].";
-//            auto nameStr = name.str();
-//
-//            litShader->Use();
-//            litShader->SetVec3(nameStr + "position", pointLights[0].Position);
-//            litShader->SetVec3(nameStr + "ambient", 0.05f, 0.05f, 0.05f);
-//            litShader->SetVec3(nameStr + "diffuse", 0.8f, 0.8f, 0.8f);
-//            litShader->SetVec3(nameStr + "specular", 1.0f, 1.0f, 1.0f);
-//            litShader->SetFloat(nameStr + "constant", 1.0f);
-//            litShader->SetFloat(nameStr + "linear", 0.09f);
-//            litShader->SetFloat(nameStr + "quadratic", 0.032f);
-//        }
+        for (int i = 0; i < sizeof(pointLights) / sizeof(Cube); i++) {
+            pointLights[i].Update(deltaTime);
+            pointLights[i].Render(MainCamera.GetCameraMatrix());
+
+            std::ostringstream name;
+            name << "pointLights[" << i << "].";
+            auto nameStr = name.str();
+
+            litShader->Use();
+            litShader->SetVec3(nameStr + "position", pointLights[i].Position);
+            litShader->SetVec3(nameStr + "ambient", 0.05f, 0.05f, 0.05f);
+            litShader->SetVec3(nameStr + "diffuse", 0.8f, 0.8f, 0.8f);
+            litShader->SetVec3(nameStr + "specular", 1.0f, 1.0f, 1.0f);
+            litShader->SetFloat(nameStr + "constant", 1.0f);
+            litShader->SetFloat(nameStr + "linear", 0.09f);
+            litShader->SetFloat(nameStr + "quadratic", 0.032f);
+        }
+
+        litShader->SetVec3("spotLight.position", MainCamera.Position);
+        litShader->SetVec3("spotLight.direction", MainCamera.Front);
+        litShader->SetVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
+        litShader->SetVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
+        litShader->SetVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+        litShader->SetFloat("spotLight.constant", 1.0f);
+        litShader->SetFloat("spotLight.linear", 0.09f);
+        litShader->SetFloat("spotLight.quadratic", 0.032f);
+        litShader->SetFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+        litShader->SetFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
 
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-        model = glm::translate(model, glm::vec3(0, 0, 0));
         litShader->SetMat4("model", model);
         litShader->SetMat4("camera", MainCamera.GetCameraMatrix());
         sponza.Draw(*litShader);
-
-//        litShader->SetVec3("spotLight.position", MainCamera.Position);
-//        litShader->SetVec3("spotLight.direction", MainCamera.Front);
-//        litShader->SetVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
-//        litShader->SetVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
-//        litShader->SetVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
-//        litShader->SetFloat("spotLight.constant", 1.0f);
-//        litShader->SetFloat("spotLight.linear", 0.09f);
-//        litShader->SetFloat("spotLight.quadratic", 0.032f);
-//        litShader->SetFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-//        litShader->SetFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
