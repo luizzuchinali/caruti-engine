@@ -13,11 +13,31 @@ namespace Graphics {
 
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
             auto error =  import.GetErrorString();
-            Log::Error("ERROR::ASSIMP: {}", error);
+            Log::Error("ASSIMP: {}", error);
             return;
         }
 
         Directory = path.substr(0, path.find_last_of('/'));
+
+//        for (unsigned int i = 0; i < scene->mNumMaterials; i++) {
+//            aiMaterial *material = scene->mMaterials[i];
+//            fmt::print("{}\n", material->GetName().C_Str());
+//
+//            for (unsigned int j = 0; j < aiTextureType_UNKNOWN; j++) {
+//                if (material->GetTextureCount((aiTextureType) j) > 0) {
+//                    aiString texture_file;
+//                    material->Get(AI_MATKEY_TEXTURE((aiTextureType) j, 0), texture_file);
+//
+//                    if (auto texture = scene->GetEmbeddedTexture(texture_file.C_Str())) {
+//                        //returned pointer is not null, read texture from memory
+//                        fmt::print("Embedded {}\n", texture->mHeight);
+//                    } else {
+//                        //regular file, check if it exists and read it
+//                        fmt::print("Regular {}\n", texture_file.C_Str());
+//                    }
+//                }
+//            }
+//        }
 
         ProcessNode(scene->mRootNode, scene);
     }
@@ -87,6 +107,7 @@ namespace Graphics {
         for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
             aiString str;
             mat->GetTexture(type, i, &str);
+
             bool skip = false;
             for (auto &j: TexturesLoaded) {
                 if (std::strcmp(j.Path.data(), str.C_Str()) == 0) {
@@ -119,6 +140,7 @@ namespace Graphics {
 
         int width, height, nrComponents;
         unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
+
         if (data) {
             GLenum format;
             if (nrComponents == 1)
@@ -139,7 +161,7 @@ namespace Graphics {
 
             stbi_image_free(data);
         } else {
-            Log::Error("ERROR::TEXTURE: Texture failed to load at path {} ", path);
+            Log::Error("TEXTURE: Texture failed to load at path {} ", path);
             stbi_image_free(data);
         }
 

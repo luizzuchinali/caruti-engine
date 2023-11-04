@@ -66,7 +66,7 @@ public:
                 glm::radians(45.0f),
                 (float) 16 / 9,
                 0.1f,
-                1000.0f
+                2000.0f
         );
     }
 
