@@ -118,9 +118,7 @@ int main() {
 
 //    auto backpackShader = Graphics::Shader("ModelLoading.vert", "ModelLoading.frag");
 //    Graphics::Model backpack("resources/models/backpack/backpack.obj");
-    auto backpackShader = Graphics::Shader("ModelLoading.vert", "ModelLoading.frag");
-    Graphics::Model backpack("resources/models/sponza/sponza.obj");
-//
+
 //    auto lightSourceShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightSourceShader.frag");
 //    lightSourceShader->Use();
 //    Cube pointLights[] = {
@@ -129,29 +127,10 @@ int main() {
 //            Cube(lightSourceShader, glm::vec3(3, 3, -5)),
 //            Cube(lightSourceShader, glm::vec3(0, -5, -3))
 //    };
-//
-//    auto lightReceiveShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightingShader.frag");
-//    lightReceiveShader->Use();
-//    Graphics::Texture crateTex("crate/Crate_Diffuse.jpg", GL_RGB, GL_TEXTURE2);
-//    lightReceiveShader->SetTexture("material.diffuse", crateTex);
-//
-//    Graphics::Texture crateSpecularTex("crate/Crate_SpecularMap.png", GL_RGBA, GL_TEXTURE3);
-//    lightReceiveShader->SetTexture("material.specular", crateSpecularTex);
-//
-//    Cube cubes[] = {
-//            Cube(lightReceiveShader, glm::vec3(-1.7f, 2.0f, -7.5f)),
-//            Cube(lightReceiveShader, glm::vec3(-1.7f, 2.0f, -15.5f)),
-//            Cube(lightReceiveShader, glm::vec3(0, 0, 0)),
-//            Cube(lightReceiveShader, glm::vec3(0, -4, 0)),
-//            Cube(lightReceiveShader, glm::vec3(0, 4, 0)),
-//            Cube(lightReceiveShader, glm::vec3(0, 6, 0)),
-//            Cube(lightReceiveShader, glm::vec3(0, -6, 0)),
-//            Cube(lightReceiveShader, glm::vec3(2, 2, 2)),
-//            Cube(lightReceiveShader, glm::vec3(2, 3, 2)),
-//            Cube(lightReceiveShader, glm::vec3(2, 2, 3)),
-//            Cube(lightReceiveShader, glm::vec3(2, 3, 3)),
-//            Cube(lightReceiveShader, glm::vec3(-2, -2, -2)),
-//    };
+
+    auto litShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightingShader.frag");
+    Graphics::Model sponza("resources/models/sponza/sponza.obj");
+    litShader->Use();
 
     while (!glfwWindowShouldClose(window.get())) {
         float currentTime = glfwGetTime();
@@ -168,23 +147,15 @@ int main() {
         glClearColor(0, 0, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        backpackShader.Use();
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-        model = glm::translate(model, glm::vec3(0, 0, 0));
-        backpackShader.SetMat4("model", model);
-        backpackShader.SetMat4("camera", MainCamera.GetCameraMatrix());
-        backpack.Draw(backpackShader);
+        litShader->Use();
+        litShader->SetVec3("cameraPos", MainCamera.Position);
+        litShader->SetFloat("material.shininess", 32.0f);
 
-//        lightReceiveShader->Use();
-//        lightReceiveShader->SetVec3("cameraPos", MainCamera.Position);
-//        lightReceiveShader->SetFloat("material.shininess", 32.0f);
-//
-//        lightReceiveShader->SetVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-//        lightReceiveShader->SetVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
-//        lightReceiveShader->SetVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
-//        lightReceiveShader->SetVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
-//
+        litShader->SetVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+        litShader->SetVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
+        litShader->SetVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
+        litShader->SetVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+
 //        for (int i = 0; i < sizeof(pointLights) / sizeof(Cube); i++) {
 //            pointLights[i].Update(deltaTime);
 //            pointLights[i].Render(MainCamera.GetCameraMatrix());
@@ -193,32 +164,33 @@ int main() {
 //            name << "pointLights[" << i << "].";
 //            auto nameStr = name.str();
 //
-//            lightReceiveShader->Use();
-//            lightReceiveShader->SetVec3(nameStr + "position", pointLights[0].Position);
-//            lightReceiveShader->SetVec3(nameStr + "ambient", 0.05f, 0.05f, 0.05f);
-//            lightReceiveShader->SetVec3(nameStr + "diffuse", 0.8f, 0.8f, 0.8f);
-//            lightReceiveShader->SetVec3(nameStr + "specular", 1.0f, 1.0f, 1.0f);
-//            lightReceiveShader->SetFloat(nameStr + "constant", 1.0f);
-//            lightReceiveShader->SetFloat(nameStr + "linear", 0.09f);
-//            lightReceiveShader->SetFloat(nameStr + "quadratic", 0.032f);
+//            litShader->Use();
+//            litShader->SetVec3(nameStr + "position", pointLights[0].Position);
+//            litShader->SetVec3(nameStr + "ambient", 0.05f, 0.05f, 0.05f);
+//            litShader->SetVec3(nameStr + "diffuse", 0.8f, 0.8f, 0.8f);
+//            litShader->SetVec3(nameStr + "specular", 1.0f, 1.0f, 1.0f);
+//            litShader->SetFloat(nameStr + "constant", 1.0f);
+//            litShader->SetFloat(nameStr + "linear", 0.09f);
+//            litShader->SetFloat(nameStr + "quadratic", 0.032f);
 //        }
-//
-//        lightReceiveShader->SetVec3("spotLight.position", MainCamera.Position);
-//        lightReceiveShader->SetVec3("spotLight.direction", MainCamera.Front);
-//        lightReceiveShader->SetVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
-//        lightReceiveShader->SetVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
-//        lightReceiveShader->SetVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
-//        lightReceiveShader->SetFloat("spotLight.constant", 1.0f);
-//        lightReceiveShader->SetFloat("spotLight.linear", 0.09f);
-//        lightReceiveShader->SetFloat("spotLight.quadratic", 0.032f);
-//        lightReceiveShader->SetFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-//        lightReceiveShader->SetFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
-//
-//        for (int i = 0; i < sizeof(cubes) / sizeof(Cube); ++i) {
-//            cubes[i].Position.x = glm::sin(2 * glm::pi<float>() * 0.05 * glfwGetTime() + i) * 3;
-//            cubes[i].Update(deltaTime);
-//            cubes[i].Render(MainCamera.GetCameraMatrix());
-//        }
+
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+        model = glm::translate(model, glm::vec3(0, 0, 0));
+        litShader->SetMat4("model", model);
+        litShader->SetMat4("camera", MainCamera.GetCameraMatrix());
+        sponza.Draw(*litShader);
+
+//        litShader->SetVec3("spotLight.position", MainCamera.Position);
+//        litShader->SetVec3("spotLight.direction", MainCamera.Front);
+//        litShader->SetVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
+//        litShader->SetVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
+//        litShader->SetVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+//        litShader->SetFloat("spotLight.constant", 1.0f);
+//        litShader->SetFloat("spotLight.linear", 0.09f);
+//        litShader->SetFloat("spotLight.quadratic", 0.032f);
+//        litShader->SetFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+//        litShader->SetFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
