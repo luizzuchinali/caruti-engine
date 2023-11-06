@@ -5,23 +5,26 @@
 #include "imgui.h"
 
 namespace Core {
+    struct DirectionalLightProps : LightProps {
+        glm::vec3 Direction = {-0.2f, -1.0f, -0.3f};
+        glm::vec3 Ambient = {0.2, 0.2, 0.2};
+        glm::vec3 Diffuse = {0.4, 0.4, 0.4};
+        glm::vec3 Specular = {0.5f, 0.5f, 0.5f};
+    };
+
     class DirectionalLight : public Core::Light {
     public:
         glm::vec3 Direction;
 
-        explicit DirectionalLight(
-                glm::vec3 direction = {-0.2f, -1.0f, -0.3f},
-                glm::vec3 ambient = {0.2, 0.2, 0.2},
-                glm::vec3 diffuse = {0.4, 0.4, 0.4},
-                glm::vec3 specular = {0.5f, 0.5f, 0.5f}
-        ) : Direction(direction), Light(
-                {0, 0, 0},
-                {0, 0, 0},
-                {1, 1, 1}
-        ) {
-            Ambient = ambient;
-            Diffuse = diffuse;
-            Specular = specular;
+        explicit DirectionalLight(DirectionalLightProps props = DirectionalLightProps()) :
+                Direction(props.Direction),
+                Light({0, 0, 0},
+                      {0, 0, 0},
+                      {1, 1, 1}
+                ) {
+            Ambient = props.Ambient;
+            Diffuse = props.Diffuse;
+            Specular = props.Specular;
         }
 
         void UIRender() override {

@@ -2,6 +2,7 @@
 #include "GLFW/glfw3.h"
 #include "Log.hpp"
 #include "Cube.hpp"
+#include "LightCube.hpp"
 #include "Graphics/Shader.hpp"
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
@@ -121,18 +122,25 @@ int main() {
 
     auto lightSourceShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightSourceShader.frag");
     lightSourceShader->Use();
-    Cube pointLights[] = {
-            Cube(lightSourceShader, glm::vec3(-50, 50, -50), glm::vec3(0), glm::vec3(30)),
-            Cube(lightSourceShader, glm::vec3(-40, 50, 50), glm::vec3(0), glm::vec3(30)),
-            Cube(lightSourceShader, glm::vec3(55, 50, -50), glm::vec3(0), glm::vec3(30)),
-            Cube(lightSourceShader, glm::vec3(55, 50, 50), glm::vec3(0), glm::vec3(30))
+    LightCube lightCubes[] = {
+            LightCube(lightSourceShader, glm::vec3(-50, 50, -50), glm::vec3(0), glm::vec3(30)),
+            LightCube(lightSourceShader, glm::vec3(-40, 50, 50), glm::vec3(0), glm::vec3(30)),
+            LightCube(lightSourceShader, glm::vec3(55, 50, -50), glm::vec3(0), glm::vec3(30)),
+            LightCube(lightSourceShader, glm::vec3(55, 50, 50), glm::vec3(0), glm::vec3(30))
     };
+
+    for (int i = 0; i < sizeof(lightCubes) / sizeof(LightCube); i++) {
+        lightCubes[i].Id = "Point Light " + std::to_string(i);
+    }
 
     auto litShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightingShader.frag");
     Graphics::Model sponza("resources/models/sponza/sponza.obj");
     litShader->Use();
 
     Core::DirectionalLight directionalLight;
+
+    float amplitude = 3.6;
+    float freq = 0.05;
 
     while (!glfwWindowShouldClose(window.get())) {
         float currentTime = glfwGetTime();
@@ -144,6 +152,9 @@ int main() {
         ImGui::NewFrame();
 
         directionalLight.UIRender();
+        for (auto &lightCube: lightCubes) {
+            lightCube.UIRender();
+        }
 
         HandleInput(window, MainCamera, deltaTime);
 
@@ -159,22 +170,35 @@ int main() {
         litShader->SetVec3("dirLight.diffuse", directionalLight.Diffuse);
         litShader->SetVec3("dirLight.specular", directionalLight.Specular);
 
-        for (int i = 0; i < sizeof(pointLights) / sizeof(Cube); i++) {
-            pointLights[i].Update(deltaTime);
-            pointLights[i].Render(MainCamera.GetCameraMatrix());
+        if (!ImGui::Begin("Scene Settings")) {
+            ImGui::End();
+        }
+
+        ImGui::InputFloat("Amplitude", &amplitude);
+        ImGui::InputFloat("Frequency", &freq);
+
+
+        ImGui::End();
+
+        auto offset = glm::sin((2 * glm::pi<float>()) * freq * glfwGetTime()) * amplitude;
+        for (int i = 0; i < sizeof(lightCubes) / sizeof(LightCube); i++) {
+            lightCubes[i].Position.x += offset;
+
+            lightCubes[i].Update(deltaTime);
+            lightCubes[i].Render(MainCamera.GetCameraMatrix());
 
             std::ostringstream name;
             name << "pointLights[" << i << "].";
             auto nameStr = name.str();
 
             litShader->Use();
-            litShader->SetVec3(nameStr + "position", pointLights[i].Position);
-            litShader->SetVec3(nameStr + "ambient", 0.05f, 0.05f, 0.05f);
-            litShader->SetVec3(nameStr + "diffuse", 0.8f, 0.8f, 0.8f);
-            litShader->SetVec3(nameStr + "specular", 1.0f, 1.0f, 1.0f);
-            litShader->SetFloat(nameStr + "constant", 1.0f);
-            litShader->SetFloat(nameStr + "linear", 0.09f);
-            litShader->SetFloat(nameStr + "quadratic", 0.032f);
+            litShader->SetVec3(nameStr + "position", lightCubes[i].Position);
+            litShader->SetVec3(nameStr + "ambient", lightCubes[i].Ambient);
+            litShader->SetVec3(nameStr + "diffuse", lightCubes[i].Diffuse);
+            litShader->SetVec3(nameStr + "specular", lightCubes[i].Specular);
+            litShader->SetFloat(nameStr + "constant", lightCubes[i].Constant);
+            litShader->SetFloat(nameStr + "linear", lightCubes[i].Linear);
+            litShader->SetFloat(nameStr + "quadratic", lightCubes[i].Quadratic);
         }
 
         litShader->SetVec3("spotLight.position", MainCamera.Position);
