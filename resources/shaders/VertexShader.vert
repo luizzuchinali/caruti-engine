@@ -5,14 +5,19 @@ layout (location = 2) in vec3 inNormal;
 
 uniform mat4 model;
 uniform mat4 camera;
+uniform mat4 lightSpaceMatrix;
 
-out vec3 FragPos;
-out vec3 Normal;
-out vec2 TexCoords;
+out VS_OUT {
+    vec3 FragPos;
+    vec3 Normal;
+    vec2 TexCoords;
+    vec4 FragPosLightSpace;
+} vs_out;
 
 void main() {
     gl_Position = camera * model * vec4(inPos, 1.0);
-    FragPos = vec3(model * vec4(inPos, 1.0));
-    Normal = mat3(transpose(inverse(model))) * inNormal;
-    TexCoords = inTexCoords;
+    vs_out.FragPos = vec3(model * vec4(inPos, 1.0));
+    vs_out.Normal = mat3(transpose(inverse(model))) * inNormal;
+    vs_out.TexCoords = inTexCoords;
+    vs_out.FragPosLightSpace = lightSpaceMatrix * vec4(vs_out.FragPos, 1.0);
 }

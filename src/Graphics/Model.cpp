@@ -9,7 +9,7 @@ namespace Graphics {
 
     void Graphics::Model::LoadModel(const std::string &path) {
         Assimp::Importer import;
-        const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+        const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeMeshes);
 
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
             auto error =  import.GetErrorString();
@@ -130,6 +130,7 @@ namespace Graphics {
     }
 
     unsigned int Graphics::Model::TextureFromFile(const char *path, const std::string &directory, bool gamma) {
+        stbi_set_flip_vertically_on_load(true);
         std::string filename = std::string(path);
         filename = directory + '/' + filename;
 

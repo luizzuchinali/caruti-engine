@@ -1,8 +1,11 @@
 #version 330 core
 
-in vec3 FragPos;
-in vec3 Normal;
-in vec2 TexCoords;
+in VS_OUT {
+    vec3 FragPos;
+    vec3 Normal;
+    vec2 TexCoords;
+    vec4 FragPosLightSpace;
+} fs_in;
 
 struct Material {
     sampler2D texture_diffuse1;
@@ -69,9 +72,9 @@ vec3 CalcDirLight(DirectionalLight light, vec3 normal, vec3 viewDir)
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
 
-    vec3 ambient = light.ambient * vec3(texture(material.texture_diffuse1, TexCoords));
-    vec3 diffuse = light.diffuse * diff * vec3(texture(material.texture_diffuse1, TexCoords));
-    vec3 specular = light.specular * spec * vec3(texture(material.texture_specular1, TexCoords));
+    vec3 ambient = light.ambient * vec3(texture(material.texture_diffuse1, fs_in.TexCoords));
+    vec3 diffuse = light.diffuse * diff * vec3(texture(material.texture_diffuse1, fs_in.TexCoords));
+    vec3 specular = light.specular * spec * vec3(texture(material.texture_specular1, fs_in.TexCoords));
     return (ambient + diffuse + specular);
 }
 
@@ -87,9 +90,9 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     float distance = length(light.position - fragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
 
-    vec3 ambient = light.ambient * vec3(texture(material.texture_diffuse1, TexCoords));
-    vec3 diffuse = light.diffuse * diff * vec3(texture(material.texture_diffuse1, TexCoords));
-    vec3 specular = light.specular * spec * vec3(texture(material.texture_specular1, TexCoords));
+    vec3 ambient = light.ambient * vec3(texture(material.texture_diffuse1, fs_in.TexCoords));
+    vec3 diffuse = light.diffuse * diff * vec3(texture(material.texture_diffuse1, fs_in.TexCoords));
+    vec3 specular = light.specular * spec * vec3(texture(material.texture_specular1, fs_in.TexCoords));
 
     ambient *= attenuation;
     diffuse *= attenuation;
@@ -114,9 +117,9 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     float epsilon = light.cutOff - light.outerCutOff;
     float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
 
-    vec3 ambient = light.ambient * vec3(texture(material.texture_diffuse1, TexCoords));
-    vec3 diffuse = light.diffuse * diff * vec3(texture(material.texture_diffuse1, TexCoords));
-    vec3 specular = light.specular * spec * vec3(texture(material.texture_specular1, TexCoords));
+    vec3 ambient = light.ambient * vec3(texture(material.texture_diffuse1, fs_in.TexCoords));
+    vec3 diffuse = light.diffuse * diff * vec3(texture(material.texture_diffuse1, fs_in.TexCoords));
+    vec3 specular = light.specular * spec * vec3(texture(material.texture_specular1, fs_in.TexCoords));
     ambient *= attenuation * intensity;
     diffuse *= attenuation * intensity;
     specular *= attenuation * intensity;
@@ -125,20 +128,20 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 
 void main() {
 
-    vec4 texColor = texture(material.texture_diffuse1, TexCoords);
+    vec4 texColor = texture(material.texture_diffuse1, fs_in.TexCoords);
     if (texColor.a < 0.5) {
         discard;
     }
 
-    vec3 output = vec3(0);
-    vec3 norm = normalize(Normal);
-    vec3 viewDir = normalize(cameraPos - FragPos);
+    vec3 fragOutput = vec3(0);
+    vec3 norm = normalize(fs_in.Normal);
+    vec3 viewDir = normalize(cameraPos - fs_in.FragPos);
 
-    output += CalcDirLight(dirLight, Normal, viewDir);
+    fragOutput += CalcDirLight(dirLight, fs_in.Normal, viewDir);
     for (int i = 0; i < NR_POINT_LIGHTS; i++) {
-        output += CalcPointLight(pointLights[i], Normal, FragPos, viewDir);
+        fragOutput += CalcPointLight(pointLights[i], fs_in.Normal, fs_in.FragPos, viewDir);
     }
-    output += CalcSpotLight(spotLight, Normal, FragPos, viewDir);
+    fragOutput += CalcSpotLight(spotLight, fs_in.Normal, fs_in.FragPos, viewDir);
 
-    FragOutColor = vec4(output, 1);
+    FragOutColor = vec4(fragOutput, 1);
 }

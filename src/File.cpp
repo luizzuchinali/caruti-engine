@@ -1,5 +1,6 @@
 #include <sstream>
 #include "File.hpp"
+#include <Log.hpp>
 
 std::string File::GetAllLines(const std::string &path) {
     std::ifstream file(path);
@@ -11,7 +12,7 @@ std::string File::GetAllLines(const std::string &path) {
         content = stream.str();
         file.close();
     } else {
-        std::cerr << "ERROR::FILE::LOAD_FAILED\n" << path << std::endl;
+        Log::Information("FILE::LOAD_FAILED");
     }
     return content;
 }

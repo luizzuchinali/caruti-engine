@@ -1,10 +1,10 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "Log.hpp"
-#include "Cube.hpp"
 #include "LightCube.hpp"
 #include "Graphics/Shader.hpp"
 #include "imgui.h"
+#include "glm/glm.hpp"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "Camera.hpp"
@@ -15,22 +15,21 @@
 #include <memory>
 #include <sstream>
 
-const int WINDOW_WIDTH = 2560, WINDOW_HEIGHT = 1440;
+constexpr int WINDOW_WIDTH = 2560, WINDOW_HEIGHT = 1440;
 auto MainCamera = Camera(glm::vec3(0, 0, -20));
 
-void GLFWWindowDeleter(GLFWwindow *window) {
+void GLFWWindowDeleter(GLFWwindow* window) {
     glfwDestroyWindow(window);
 }
 
-void FramebufferSizeCallback(GLFWwindow *windowPtr, int width, int height) {
+void FramebufferSizeCallback([[maybe_unused]] GLFWwindow* windowPtr, const int width, const int height) {
     glViewport(0, 0, width, height);
 }
 
-void HandleInputCallback(GLFWwindow *windowPtr, int key, [[maybe_unused]] int scanCode, int action,
+void HandleInputCallback(GLFWwindow* windowPtr, const int key, [[maybe_unused]] int scanCode, const int action,
                          [[maybe_unused]] int mods) {
-
-    auto isKeyPRelease = key == GLFW_KEY_P && action == GLFW_RELEASE;
-    if (isKeyPRelease && glfwGetInputMode(windowPtr, GLFW_CURSOR) == GLFW_CURSOR_DISABLED)
+    if (const auto isKeyPRelease = key == GLFW_KEY_P && action == GLFW_RELEASE;
+        isKeyPRelease && glfwGetInputMode(windowPtr, GLFW_CURSOR) == GLFW_CURSOR_DISABLED)
         glfwSetInputMode(windowPtr, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     else if (isKeyPRelease && glfwGetInputMode(windowPtr, GLFW_CURSOR) == GLFW_CURSOR_NORMAL)
         glfwSetInputMode(windowPtr, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -46,12 +45,12 @@ std::shared_ptr<GLFWwindow> CreateWindow() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_SAMPLES, 4);
 
-    GLFWwindow *windowPtr = glfwCreateWindow(
-            WINDOW_WIDTH,
-            WINDOW_HEIGHT,
-            "Caruti Engine",
-            nullptr,
-            nullptr
+    GLFWwindow* windowPtr = glfwCreateWindow(
+        WINDOW_WIDTH,
+        WINDOW_HEIGHT,
+        "Caruti Engine",
+        nullptr,
+        nullptr
     );
 
     if (windowPtr == nullptr) {
@@ -62,7 +61,7 @@ std::shared_ptr<GLFWwindow> CreateWindow() {
 
     std::shared_ptr<GLFWwindow> window(windowPtr, GLFWWindowDeleter);
     glfwMakeContextCurrent(window.get());
-    if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
+    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
         Log::Error("Failed to init GLAD");
         exit(-1);
     }
@@ -71,11 +70,12 @@ std::shared_ptr<GLFWwindow> CreateWindow() {
     glfwSetFramebufferSizeCallback(window.get(), FramebufferSizeCallback);
     glfwSetKeyCallback(window.get(), HandleInputCallback);
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
     glEnable(GL_MULTISAMPLE);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO &io = ImGui::GetIO();
+    ImGuiIO&io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
@@ -91,60 +91,72 @@ std::shared_ptr<GLFWwindow> CreateWindow() {
     return window;
 }
 
-void HandleInput(const std::shared_ptr<GLFWwindow> &window, Camera &camera, float deltaTime) {
+void HandleInput(const std::shared_ptr<GLFWwindow>&window, Camera&camera, const float deltaTime) {
     if (glfwGetKey(window.get(), GLFW_KEY_ESCAPE)) {
         GLFWWindowDeleter(window.get());
         exit(0);
     }
 
     if (glfwGetKey(window.get(), GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(ECameraMovement::Forward, deltaTime);
+        camera.ProcessKeyboard(Forward, deltaTime);
     if (glfwGetKey(window.get(), GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(ECameraMovement::Backward, deltaTime);
+        camera.ProcessKeyboard(Backward, deltaTime);
     if (glfwGetKey(window.get(), GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(ECameraMovement::Left, deltaTime);
+        camera.ProcessKeyboard(Left, deltaTime);
     if (glfwGetKey(window.get(), GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(ECameraMovement::Right, deltaTime);
+        camera.ProcessKeyboard(Right, deltaTime);
 
     double xPos, yPos;
     glfwGetCursorPos(window.get(), &xPos, &yPos);
     camera.ProcessMouseMovement(xPos, yPos);
-
 }
 
 int main() {
-    auto window = CreateWindow();
+    const auto window = CreateWindow();
     float lastTime = glfwGetTime();
-    float deltaTime;
-
-//    auto backpackShader = Graphics::Shader("ModelLoading.vert", "ModelLoading.frag");
-//    Graphics::Model backpack("resources/models/backpack/backpack.obj");
+    Core::DirectionalLight directionalLight;
 
     auto lightSourceShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightSourceShader.frag");
-    lightSourceShader->Use();
+    auto litShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightingShader.frag");
+
     LightCube lightCubes[] = {
-            LightCube(lightSourceShader, glm::vec3(-50, 50, -50), glm::vec3(0), glm::vec3(30)),
-            LightCube(lightSourceShader, glm::vec3(-40, 50, 50), glm::vec3(0), glm::vec3(30)),
-            LightCube(lightSourceShader, glm::vec3(55, 50, -50), glm::vec3(0), glm::vec3(30)),
-            LightCube(lightSourceShader, glm::vec3(55, 50, 50), glm::vec3(0), glm::vec3(30))
+        LightCube(lightSourceShader, glm::vec3(-50, 50, -50), glm::vec3(0), glm::vec3(30)),
+        LightCube(lightSourceShader, glm::vec3(-40, 50, 50), glm::vec3(0), glm::vec3(30)),
+        LightCube(lightSourceShader, glm::vec3(55, 50, -50), glm::vec3(0), glm::vec3(30)),
+        LightCube(lightSourceShader, glm::vec3(55, 50, 50), glm::vec3(0), glm::vec3(30))
     };
+    Graphics::Model sponza("resources/models/sponza/sponza.obj");
+
+    float amplitude = 3.6;
+    float freq = 0.05;
 
     for (int i = 0; i < sizeof(lightCubes) / sizeof(LightCube); i++) {
         lightCubes[i].Id = "Point Light " + std::to_string(i);
     }
 
-    auto litShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightingShader.frag");
-    Graphics::Model sponza("resources/models/sponza/sponza.obj");
-    litShader->Use();
-
-    Core::DirectionalLight directionalLight;
-
-    float amplitude = 3.6;
-    float freq = 0.05;
+    // unsigned int depthMapFBO;
+    // glGenBuffers(1, &depthMapFBO);
+    //
+    // constexpr unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+    // unsigned int depthMap;
+    // glGenTextures(1, &depthMap);
+    // glBindTexture(GL_TEXTURE_2D, depthMap);
+    // glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT,
+    //              nullptr);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    //
+    // glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    // glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+    // glDrawBuffer(GL_NONE);
+    // glReadBuffer(GL_NONE);
+    // glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     while (!glfwWindowShouldClose(window.get())) {
-        float currentTime = glfwGetTime();
-        deltaTime = currentTime - lastTime;
+        const float currentTime = glfwGetTime();
+        const float deltaTime = currentTime - lastTime;
         lastTime = currentTime;
 
         ImGui_ImplOpenGL3_NewFrame();
@@ -152,9 +164,18 @@ int main() {
         ImGui::NewFrame();
 
         directionalLight.UIRender();
-        for (auto &lightCube: lightCubes) {
+        for (auto&lightCube: lightCubes) {
             lightCube.UIRender();
         }
+
+        if (!ImGui::Begin("Scene Settings")) {
+            ImGui::End();
+        }
+
+        ImGui::InputFloat("Amplitude", &amplitude);
+        ImGui::InputFloat("Frequency", &freq);
+
+        ImGui::End();
 
         HandleInput(window, MainCamera, deltaTime);
 
@@ -170,20 +191,9 @@ int main() {
         litShader->SetVec3("dirLight.diffuse", directionalLight.Diffuse);
         litShader->SetVec3("dirLight.specular", directionalLight.Specular);
 
-        if (!ImGui::Begin("Scene Settings")) {
-            ImGui::End();
-        }
-
-        ImGui::InputFloat("Amplitude", &amplitude);
-        ImGui::InputFloat("Frequency", &freq);
-
-
-        ImGui::End();
-
-        auto offset = glm::sin((2 * glm::pi<float>()) * freq * glfwGetTime()) * amplitude;
+        const auto offset = glm::sin(2 * glm::pi<float>() * freq * currentTime) * amplitude;
         for (int i = 0; i < sizeof(lightCubes) / sizeof(LightCube); i++) {
             lightCubes[i].Position.x += offset;
-
             lightCubes[i].Update(deltaTime);
             lightCubes[i].Render(MainCamera.GetCameraMatrix());
 
@@ -212,7 +222,7 @@ int main() {
         litShader->SetFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
         litShader->SetFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
 
-        glm::mat4 model = glm::mat4(1.0f);
+        constexpr glm::mat4 model = glm::mat4(1.0f);
         litShader->SetMat4("model", model);
         litShader->SetMat4("camera", MainCamera.GetCameraMatrix());
         sponza.Draw(*litShader);
