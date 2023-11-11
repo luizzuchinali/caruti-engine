@@ -12,6 +12,7 @@
 #include <memory>
 #include <vector>
 #include <sstream>
+#include <random>
 
 constexpr int WINDOW_WIDTH = 2560, WINDOW_HEIGHT = 1440;
 auto MainCamera = Camera(glm::vec3(0, 15, -15));
@@ -152,11 +153,17 @@ int main() {
     glBindVertexArray(0);
 
     std::vector<glm::vec3> vegetation;
-    vegetation.emplace_back(-1.5f, 0.0f, -0.48f);
-    vegetation.emplace_back(1.5f, 0.0f, 0.51f);
-    vegetation.emplace_back(0.0f, 0.0f, 0.7f);
-    vegetation.emplace_back(-0.3f, 0.0f, -2.3f);
-    vegetation.emplace_back(0.5f, 0.0f, -0.6f);
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> disX(-5.3f, 4.3f);
+    std::uniform_real_distribution<float> disZ(-5.0f, 5.0f);
+
+    for (int i = 0; i < 2000; i++) {
+        float randomX = disX(gen);
+        float randomZ = disZ(gen);
+
+        vegetation.emplace_back(randomX, 0.0f, randomZ);
+    }
 
     while (!glfwWindowShouldClose(window.get())) {
         const float currentTime = glfwGetTime();
