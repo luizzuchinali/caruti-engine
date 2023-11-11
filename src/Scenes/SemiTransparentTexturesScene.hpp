@@ -9,6 +9,7 @@
 #include "Plane.hpp"
 #include <memory>
 #include <random>
+#include <map>
 
 class SemiTransparentTexturesScene {
 public:
@@ -23,13 +24,13 @@ public:
     std::vector<glm::vec3> Windows;
 
     float Vertices[48] = {
-            0.0f, 0.5f, 0.0f, 0.0f, 1.0f,  0, 0, 1,
+            0.0f, 0.5f, 0.0f, 0.0f, 1.0f, 0, 0, 1,
             0.0f, -0.5f, 0.0f, 0.0f, 0.0f, 0, 0, 1,
-            1.0f, -0.5f, 0.0f, 1.0f, 0.0f, 0,0, 1,
-
-            0.0f, 0.5f, 0.0f, 0.0f, 1.0f,  0, 0, 1,
             1.0f, -0.5f, 0.0f, 1.0f, 0.0f, 0, 0, 1,
-            1.0f, 0.5f, 0.0f, 1.0f, 1.0f , 0, 0, 1
+
+            0.0f, 0.5f, 0.0f, 0.0f, 1.0f, 0, 0, 1,
+            1.0f, -0.5f, 0.0f, 1.0f, 0.0f, 0, 0, 1,
+            1.0f, 0.5f, 0.0f, 1.0f, 1.0f, 0, 0, 1
     };
 
     SemiTransparentTexturesScene() : Plane(LitShader) {
@@ -86,11 +87,20 @@ public:
         Plane.Update(deltaTime);
         Plane.Render(camera.GetCameraMatrix());
 
+        std::map<float, glm::vec3> sortedWindows;
+        for (auto Window: Windows) {
+            float distance = glm::length(camera.Position - Window);
+            sortedWindows[distance] = Window;
+        }
+
         glBindVertexArray(VAO);
         LitShader->SetTexture("material.texture_diffuse1", WindowTexture);
-        for (auto i: Windows) {
+        for (auto it = sortedWindows.rbegin(); it != sortedWindows.rend(); ++it) {
+            float distance = it->first;
+            glm::vec3 window = it->second;
+
             auto model = glm::mat4(1.0f);
-            model = glm::translate(model, i);
+            model = glm::translate(model, window);
             LitShader->SetMat4("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
