@@ -1,18 +1,16 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "Log.hpp"
-#include "Graphics/Shader.hpp"
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "Camera.hpp"
 #include "Core/DirectionalLight.hpp"
-#include "Plane.hpp"
+#include "Scenes/DenseGrassScene.hpp"
+#include "Scenes/SemiTransparentTexturesScene.hpp"
 
 #include <memory>
-#include <vector>
 #include <sstream>
-#include <random>
 
 constexpr int WINDOW_WIDTH = 2560, WINDOW_HEIGHT = 1440;
 auto MainCamera = Camera(glm::vec3(0, 15, -15));
@@ -120,52 +118,8 @@ int main() {
     Core::DirectionalLight directionalLight;
     directionalLight.Ambient = glm::vec3(0.6, 0.6, 0.6);
     // SponzaScene sponzaScene{};
-
-    auto litShader = std::make_shared<Graphics::Shader>("VertexShader.vert", "LightingShader.frag");
-    litShader->Use();
-
-    auto terrainGrassTexture = Graphics::Texture("TerrainGrassTexture.jpg", GL_RGB, GL_TEXTURE0);
-    auto grassTexture = Graphics::Texture("grass.png", GL_RGBA, GL_TEXTURE1, GL_CLAMP_TO_EDGE);
-
-    Plane plane(litShader);
-
-    float vegetationVertices[] = {
-            0.0f, 0.5f, 0.0f, 0.0f, 1.0f,
-            0.0f, -0.5f, 0.0f, 0.0f, 0.0f,
-            1.0f, -0.5f, 0.0f, 1.0f, 0.0f,
-
-            0.0f, 0.5f, 0.0f, 0.0f, 1.0f,
-            1.0f, -0.5f, 0.0f, 1.0f, 0.0f,
-            1.0f, 0.5f, 0.0f, 1.0f, 1.0f
-    };
-
-    unsigned int vegetationVAO, vegetationVBO;
-    glGenVertexArrays(1, &vegetationVAO);
-    glBindVertexArray(vegetationVAO);
-
-    glGenBuffers(1, &vegetationVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, vegetationVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vegetationVertices), &vegetationVertices[0], GL_DYNAMIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, nullptr);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void *) (sizeof(float) * 3));
-    glEnableVertexAttribArray(1);
-    glBindVertexArray(0);
-
-    std::vector<glm::vec3> vegetation;
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<float> disX(-5.3f, 4.3f);
-    std::uniform_real_distribution<float> disZ(-5.0f, 5.0f);
-
-    for (int i = 0; i < 2000; i++) {
-        float randomX = disX(gen);
-        float randomZ = disZ(gen);
-
-        vegetation.emplace_back(randomX, 0.0f, randomZ);
-    }
+//    DenseGrassScene denseGrassScene{};
+    SemiTransparentTexturesScene semiTransparentTexturesScene{};
 
     while (!glfwWindowShouldClose(window.get())) {
         const float currentTime = glfwGetTime();
@@ -176,36 +130,13 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        directionalLight.UIRender();
-
         HandleInput(window, MainCamera, deltaTime);
 
         glClearColor(0, 0, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // sponzaScene.Show(deltaTime, currentTime, MainCamera);
-
-        litShader->Use();
-        litShader->SetVec3("cameraPos", MainCamera.Position);
-        litShader->SetFloat("material.shininess", 32.0f);
-
-        litShader->SetVec3("dirLight.direction", directionalLight.Direction);
-        litShader->SetVec3("dirLight.ambient", directionalLight.Ambient);
-        litShader->SetVec3("dirLight.diffuse", directionalLight.Diffuse);
-        litShader->SetVec3("dirLight.specular", directionalLight.Specular);
-
-        litShader->SetTexture("material.texture_diffuse1", terrainGrassTexture);
-        plane.Update(deltaTime);
-        plane.Render(MainCamera.GetCameraMatrix());
-
-        glBindVertexArray(vegetationVAO);
-        litShader->SetTexture("material.texture_diffuse1", grassTexture);
-        for (auto i: vegetation) {
-            auto model = glm::mat4(1.0f);
-            model = glm::translate(model, i);
-            litShader->SetMat4("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-        }
-        glBindVertexArray(0);
+        // denseGrassScene.Show(deltaTime, currentTime, MainCamera);
+        semiTransparentTexturesScene.Show(deltaTime, currentTime, MainCamera);
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

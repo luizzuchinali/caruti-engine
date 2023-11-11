@@ -13,6 +13,7 @@ set(ASSIMP_DIR third/assimp)
 
 file(GLOB_RECURSE sources CONFIGURE_DEPENDS
         "src/**.cpp"
+        "src/**.hpp"
         ${GLAD_DIR}/**.c
         ${STB_DIR}/**.cpp
         ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
