@@ -10,7 +10,7 @@
         
     Loader: True
     Local files: False
-    Omit khrplatform: False
+    Omit khrplatform: GL_REPEAT
     Reproducible: False
 
     Commandline:

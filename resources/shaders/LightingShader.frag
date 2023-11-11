@@ -129,7 +129,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 void main() {
 
     vec4 texColor = texture(material.texture_diffuse1, fs_in.TexCoords);
-    if (texColor.a < 0.5) {
+    if (texColor.a < 0.1) {
         discard;
     }
 
@@ -138,10 +138,10 @@ void main() {
     vec3 viewDir = normalize(cameraPos - fs_in.FragPos);
 
     fragOutput += CalcDirLight(dirLight, fs_in.Normal, viewDir);
-    for (int i = 0; i < NR_POINT_LIGHTS; i++) {
-        fragOutput += CalcPointLight(pointLights[i], fs_in.Normal, fs_in.FragPos, viewDir);
-    }
-    fragOutput += CalcSpotLight(spotLight, fs_in.Normal, fs_in.FragPos, viewDir);
+    //    for (int i = 0; i < NR_POINT_LIGHTS; i++) {
+    //        fragOutput += CalcPointLight(pointLights[i], fs_in.Normal, fs_in.FragPos, viewDir);
+    //    }
+    //    fragOutput += CalcSpotLight(spotLight, fs_in.Normal, fs_in.FragPos, viewDir);
 
     FragOutColor = vec4(fragOutput, 1);
 }

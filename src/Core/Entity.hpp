@@ -24,11 +24,11 @@ namespace Core {
 
         virtual void Update(const float &deltaTime) {
             Model = glm::mat4(1);
-            Model = glm::translate(Model, Position);
-            Model = glm::rotate(Model, glm::radians(Rotation.x), glm::vec3(1, 0, 0));
-            Model = glm::rotate(Model, glm::radians(Rotation.y), glm::vec3(0, 1, 0));
-            Model = glm::rotate(Model, glm::radians(Rotation.z), glm::vec3(0, 0, 1));
-            Model = glm::scale(Model, Scale);
+            Model = translate(Model, Position);
+            Model = rotate(Model, glm::radians(Rotation.x), glm::vec3(1, 0, 0));
+            Model = rotate(Model, glm::radians(Rotation.y), glm::vec3(0, 1, 0));
+            Model = rotate(Model, glm::radians(Rotation.z), glm::vec3(0, 0, 1));
+            Model = scale(Model, Scale);
         }
 
         virtual void Render(glm::mat4 cameraMatrix) {

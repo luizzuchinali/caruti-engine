@@ -2,15 +2,15 @@
 
 namespace Graphics {
 
-    Texture::Texture(const char *texPath, GLenum channelFormat, GLenum index) : _index(index) {
+    Texture::Texture(const char *texPath, GLenum channelFormat, GLenum index, GLint wrap) : _index(index) {
         const std::string basePath = "resources/textures/";
 
         stbi_set_flip_vertically_on_load(true);
 
         glGenTextures(1, &_id);
         glBindTexture(GL_TEXTURE_2D, _id);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
@@ -20,7 +20,7 @@ namespace Graphics {
                 &_nrChannels, 0);
 
         if (buffer) {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _width, _height, 0, channelFormat, GL_UNSIGNED_BYTE, buffer);
+            glTexImage2D(GL_TEXTURE_2D, 0, channelFormat, _width, _height, 0, channelFormat, GL_UNSIGNED_BYTE, buffer);
             glGenerateMipmap(GL_TEXTURE_2D);
         } else {
             Log::Error("TEXTURE::LOAD_FAILED {}", texPath);
