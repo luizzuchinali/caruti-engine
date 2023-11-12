@@ -8,6 +8,7 @@
 #include "Core/DirectionalLight.hpp"
 #include "Scenes/DenseGrassScene.hpp"
 #include "Scenes/SemiTransparentTexturesScene.hpp"
+#include "Scenes/FramebufferScene.hpp"
 
 #include <memory>
 #include <sstream>
@@ -70,14 +71,10 @@ std::shared_ptr<GLFWwindow> CreateWindow() {
     glDepthFunc(GL_LESS);
     glEnable(GL_MULTISAMPLE);
 
-    glEnable(GL_CULL_FACE);
-    glFrontFace(GL_CW);
-//    glFrontFace(GL_CCW);
-    glCullFace(GL_BACK);
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+//    glEnable(GL_CULL_FACE);
+//    glFrontFace(GL_CW);
+//    //    glFrontFace(GL_CCW);
+//    glCullFace(GL_BACK);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -125,7 +122,8 @@ int main() {
     directionalLight.Ambient = glm::vec3(0.6, 0.6, 0.6);
     // SponzaScene sponzaScene{};
 //    DenseGrassScene denseGrassScene{};
-    SemiTransparentTexturesScene semiTransparentTexturesScene{};
+//     SemiTransparentTexturesScene semiTransparentTexturesScene{};
+    FramebufferScene framebufferScene{};
 
     while (!glfwWindowShouldClose(window.get())) {
         const float currentTime = glfwGetTime();
@@ -141,8 +139,9 @@ int main() {
         glClearColor(0, 0, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // sponzaScene.Show(deltaTime, currentTime, MainCamera);
-        // denseGrassScene.Show(deltaTime, currentTime, MainCamera);
-        semiTransparentTexturesScene.Show(deltaTime, currentTime, MainCamera);
+//         denseGrassScene.Show(deltaTime, currentTime, MainCamera);
+//         semiTransparentTexturesScene.Show(deltaTime, currentTime, MainCamera);
+        framebufferScene.Show(deltaTime, currentTime, MainCamera);
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

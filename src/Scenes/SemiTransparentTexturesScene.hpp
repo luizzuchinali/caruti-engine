@@ -34,6 +34,9 @@ public:
     };
 
     SemiTransparentTexturesScene() : Plane(LitShader) {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
         DirectionalLight.Ambient = glm::vec3(0.2, 0.2, 0.2);
 
         LitShader->Use();

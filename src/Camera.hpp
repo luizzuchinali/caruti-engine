@@ -33,7 +33,7 @@ public:
 
 	float MovementSpeed;
 	float MouseSensitivity;
-	float LastX = 400, LastY = 400;
+	float LastX = 0, LastY = 0;
 
 	explicit Camera(
 		glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
