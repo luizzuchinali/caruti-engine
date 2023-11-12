@@ -22,14 +22,14 @@ public:
     Plane Plane;
     std::vector<glm::vec3> vegetation;
 
-    float vegetationVertices[48] = {
-            0.0f, 0.5f, 0.0f, 0.0f, 1.0f,  0, 0, 1,
+    float VegetationVertices[48] = {
+            0.0f, 0.5f, 0.0f, 0.0f, 1.0f, 0, 0, 1,
             0.0f, -0.5f, 0.0f, 0.0f, 0.0f, 0, 0, 1,
             1.0f, -0.5f, 0.0f, 1.0f, 0.0f, 0, 0, 1,
 
-            0.0f, 0.5f, 0.0f, 0.0f, 1.0f,  0, 0, 1,
+            0.0f, 0.5f, 0.0f, 0.0f, 1.0f, 0, 0, 1,
             1.0f, -0.5f, 0.0f, 1.0f, 0.0f, 0, 0, 1,
-            1.0f, 0.5f, 0.0f, 1.0f, 1.0f,  0, 0, 1,
+            1.0f, 0.5f, 0.0f, 1.0f, 1.0f, 0, 0, 1,
     };
 
     DenseGrassScene() : Plane(LitShader) {
@@ -42,7 +42,7 @@ public:
 
         glGenBuffers(1, &VegetationVBO);
         glBindBuffer(GL_ARRAY_BUFFER, VegetationVBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vegetationVertices), &vegetationVertices[0], GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(VegetationVertices), &VegetationVertices[0], GL_DYNAMIC_DRAW);
 
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, nullptr);
         glEnableVertexAttribArray(0);
@@ -69,6 +69,8 @@ public:
     }
 
     void Show(const float deltaTime, [[maybe_unused]] const float currentTime, Camera &camera) {
+        DirectionalLight.UIRender();
+
         LitShader->Use();
         LitShader->SetVec3("cameraPos", camera.Position);
         LitShader->SetFloat("material.shininess", 32.0f);
