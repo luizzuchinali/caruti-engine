@@ -22,9 +22,9 @@ public:
                                                                                      "LightingShader.frag");
     std::shared_ptr<Graphics::Shader> Shader = std::make_shared<Graphics::Shader>("FramebufferScreenShader.vert",
                                                                                   "FramebufferScreenShader.frag");
-    Graphics::Texture TerrainGrassTexture = Graphics::Texture("TerrainGrassTexture.jpg", GL_RGB, GL_TEXTURE0);
-    Graphics::Texture GrassTexture = Graphics::Texture("grass.png", GL_RGBA, GL_TEXTURE0, GL_CLAMP_TO_EDGE);
-    Graphics::Texture CrateTexture = Graphics::Texture("crate/Crate_diffuse.jpg", GL_RGB, GL_TEXTURE0);
+    Graphics::Texture TerrainGrassTexture = Graphics::Texture("TerrainGrassTexture.jpg", GL_TEXTURE0);
+    Graphics::Texture GrassTexture = Graphics::Texture("grass.png", GL_TEXTURE0, GL_CLAMP_TO_EDGE);
+    Graphics::Texture CrateTexture = Graphics::Texture("crate/Crate_diffuse.jpg", GL_TEXTURE0);
 
     Plane Plane;
     Cube Cube;

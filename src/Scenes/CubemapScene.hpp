@@ -21,8 +21,8 @@ public:
     unsigned int SkyboxVAO{}, SkyboxVBO{}, SkyboxTexture{};
     std::shared_ptr<Graphics::Shader> SkyboxShader = std::make_shared<Graphics::Shader>("Skybox.vert", "Skybox.frag");
 
-    Graphics::Texture TerrainGrassTexture = Graphics::Texture("forrest_ground_01/forrest_ground_01_diff_1k.jpg", GL_RGB, GL_TEXTURE0);
-    Graphics::Texture GrassTexture = Graphics::Texture("grass.png", GL_RGBA, GL_TEXTURE1, GL_CLAMP_TO_EDGE);
+    Graphics::Texture TerrainGrassTexture = Graphics::Texture("forrest_ground_01/forrest_ground_01_diff_1k.jpg", GL_TEXTURE0);
+    Graphics::Texture GrassTexture = Graphics::Texture("grass.png", GL_TEXTURE1, GL_CLAMP_TO_EDGE);
 
     Plane Plane;
     std::vector<glm::vec3> vegetation;

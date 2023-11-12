@@ -2,7 +2,7 @@
 
 namespace Graphics {
 
-    Texture::Texture(const char *texPath, GLenum channelFormat, GLenum index, GLint wrap) : _index(index) {
+    Texture::Texture(const char *texPath, GLenum index, GLint wrap) : _index(index) {
         const std::string basePath = "resources/textures/";
 
         stbi_set_flip_vertically_on_load(true);
@@ -20,7 +20,15 @@ namespace Graphics {
                 &_nrChannels, 0);
 
         if (buffer) {
-            glTexImage2D(GL_TEXTURE_2D, 0, channelFormat, _width, _height, 0, channelFormat, GL_UNSIGNED_BYTE, buffer);
+            GLenum format;
+            if (_nrChannels == 1)
+                format = GL_RED;
+            else if (_nrChannels == 3)
+                format = GL_RGB;
+            else if (_nrChannels == 4)
+                format = GL_RGBA;
+
+            glTexImage2D(GL_TEXTURE_2D, 0, format, _width, _height, 0, format, GL_UNSIGNED_BYTE, buffer);
             glGenerateMipmap(GL_TEXTURE_2D);
         } else {
             Log::Error("TEXTURE::LOAD_FAILED {}", texPath);

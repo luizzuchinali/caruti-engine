@@ -16,8 +16,8 @@ public:
     Core::DirectionalLight DirectionalLight;
     std::shared_ptr<Graphics::Shader> LitShader = std::make_shared<Graphics::Shader>("VertexShader.vert",
                                                                                      "LightingShader.frag");
-    Graphics::Texture TerrainGrassTexture = Graphics::Texture("TerrainGrassTexture.jpg", GL_RGB, GL_TEXTURE0);
-    Graphics::Texture GrassTexture = Graphics::Texture("grass.png", GL_RGBA, GL_TEXTURE1, GL_CLAMP_TO_EDGE);
+    Graphics::Texture TerrainGrassTexture = Graphics::Texture("TerrainGrassTexture.jpg", GL_TEXTURE0);
+    Graphics::Texture GrassTexture = Graphics::Texture("grass.png", GL_TEXTURE1, GL_CLAMP_TO_EDGE);
 
     Plane Plane;
     std::vector<glm::vec3> vegetation;
