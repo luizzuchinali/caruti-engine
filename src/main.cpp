@@ -9,6 +9,7 @@
 #include "Scenes/DenseGrassScene.hpp"
 #include "Scenes/SemiTransparentTexturesScene.hpp"
 #include "Scenes/FramebufferScene.hpp"
+#include "Scenes/CubemapScene.hpp"
 
 #include <memory>
 #include <sstream>
@@ -121,9 +122,10 @@ int main() {
     Core::DirectionalLight directionalLight;
     directionalLight.Ambient = glm::vec3(0.6, 0.6, 0.6);
     // SponzaScene sponzaScene{};
-    DenseGrassScene denseGrassScene{};
+//    DenseGrassScene denseGrassScene{};
 //     SemiTransparentTexturesScene semiTransparentTexturesScene{};
 //    FramebufferScene framebufferScene{};
+    CubeMapScene cubemapScene{};
 
     while (!glfwWindowShouldClose(window.get())) {
         const float currentTime = glfwGetTime();
@@ -139,9 +141,10 @@ int main() {
         glClearColor(0, 0, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // sponzaScene.Show(deltaTime, currentTime, MainCamera);
-        denseGrassScene.Show(deltaTime, currentTime, MainCamera);
+//        denseGrassScene.Show(deltaTime, currentTime, MainCamera);
 //         semiTransparentTexturesScene.Show(deltaTime, currentTime, MainCamera);
 //        framebufferScene.Show(deltaTime, currentTime, MainCamera);
+        cubemapScene.Show(deltaTime, currentTime, MainCamera);
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
