@@ -69,6 +69,12 @@ std::shared_ptr<GLFWwindow> CreateWindow() {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glEnable(GL_MULTISAMPLE);
+
+    glEnable(GL_CULL_FACE);
+    glFrontFace(GL_CW);
+//    glFrontFace(GL_CCW);
+    glCullFace(GL_BACK);
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
