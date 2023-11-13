@@ -17,12 +17,12 @@ class EnvironmentMappingScene {
 public:
     Core::DirectionalLight DirectionalLight;
     Core::Skybox Skybox = Core::Skybox(std::vector<std::string>{
-            "resources/textures/skybox/bsky/right.png",
-            "resources/textures/skybox/bsky/left.png",
-            "resources/textures/skybox/bsky/top.png",
-            "resources/textures/skybox/bsky/bottom.png",
-            "resources/textures/skybox/bsky/front.png",
-            "resources/textures/skybox/bsky/back.png"
+            "resources/textures/skybox/scythian_tombs/right.png",
+            "resources/textures/skybox/scythian_tombs/left.png",
+            "resources/textures/skybox/scythian_tombs/top.png",
+            "resources/textures/skybox/scythian_tombs/bottom.png",
+            "resources/textures/skybox/scythian_tombs/front.png",
+            "resources/textures/skybox/scythian_tombs/back.png"
     });
 
     unsigned int VegetationVAO{}, VegetationVBO{};
@@ -35,7 +35,7 @@ public:
             GL_TEXTURE0
     );
     Graphics::Texture GrassTexture = Graphics::Texture("grass.png", GL_TEXTURE1, GL_CLAMP_TO_EDGE);
-    Plane Plane;
+    Plane GrassPlane;
     std::vector<glm::vec3> vegetation;
 
     float VegetationVertices[48] = {
@@ -52,9 +52,18 @@ public:
             "ReflectionShader.vert",
             "ReflectionShader.frag"
     );
-    Cube Cube;
 
-    EnvironmentMappingScene() : Cube(ReflectionShader), Plane(LitShader) {
+    Cube ReflectionCube;
+
+    std::shared_ptr<Graphics::Shader> RefractionShader = std::make_shared<Graphics::Shader>(
+            "RefractionShader.vert",
+            "RefractionShader.frag"
+    );
+    Cube RefractionCube;
+
+
+    EnvironmentMappingScene() : ReflectionCube(ReflectionShader), RefractionCube(RefractionShader),
+                                GrassPlane(LitShader) {
         DirectionalLight.Direction = glm::vec3(-0.2, -1, -1);
         DirectionalLight.Ambient = glm::vec3(0.4, 0.4, 0.4);
         DirectionalLight.Diffuse = glm::vec3(0.8, 0.8, 0.8);
@@ -96,10 +105,6 @@ public:
 
         Skybox.Render(camera);
 
-        ReflectionShader->Use();
-        ReflectionShader->SetVec3("cameraPos", camera.Position);
-        ReflectionShader->SetInt("skybox", 0);
-
         LitShader->Use();
         LitShader->SetVec3("cameraPos", camera.Position);
         LitShader->SetFloat("material.shininess", 32.0f);
@@ -109,10 +114,9 @@ public:
         LitShader->SetVec3("dirLight.diffuse", DirectionalLight.Diffuse);
         LitShader->SetVec3("dirLight.specular", DirectionalLight.Specular);
 
-
         LitShader->SetTexture("material.texture_diffuse1", TerrainGrassTexture);
-        Plane.Update(deltaTime);
-        Plane.Render(camera.GetCameraMatrix());
+        GrassPlane.Update(deltaTime);
+        GrassPlane.Render(camera.GetCameraMatrix());
 
         glBindVertexArray(VegetationVAO);
         LitShader->SetTexture("material.texture_diffuse1", GrassTexture);
@@ -124,10 +128,24 @@ public:
         }
         glBindVertexArray(0);
 
-        Cube.Rotation = {180, glm::sin(currentTime * 0.2) * 360, 180};
-        Cube.Position = {0, 5, 0};
-        Cube.Update(deltaTime);
-        Cube.Render(camera.GetCameraMatrix());
+
+        ReflectionShader->Use();
+        ReflectionShader->SetVec3("cameraPos", camera.Position);
+        ReflectionShader->SetInt("skybox", 0);
+
+        ReflectionCube.Rotation = {180, glm::sin(currentTime * 0.05) * 360, 180};
+        ReflectionCube.Position = {0, 5, 0};
+        ReflectionCube.Update(deltaTime);
+        ReflectionCube.Render(camera.GetCameraMatrix());
+
+        RefractionShader->Use();
+        RefractionShader->SetVec3("cameraPos", camera.Position);
+        RefractionShader->SetInt("skybox", 0);
+
+        RefractionCube.Rotation = {180, glm::sin(currentTime * 0.05) * 360, 180};
+        RefractionCube.Position = {3, 5, 0};
+        RefractionCube.Update(deltaTime);
+        RefractionCube.Render(camera.GetCameraMatrix());
     }
 };
 
