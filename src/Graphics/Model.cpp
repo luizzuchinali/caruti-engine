@@ -9,7 +9,14 @@ namespace Graphics {
 
     void Graphics::Model::LoadModel(const std::string &path) {
         Assimp::Importer import;
-        const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_OptimizeMeshes);
+        const aiScene *scene = import.ReadFile(
+                path,
+                aiProcess_GenNormals |
+                aiProcess_Triangulate |
+                aiProcess_JoinIdenticalVertices |
+                aiProcess_OptimizeMeshes |
+                aiProcess_FindInvalidData
+        );
 
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
             auto error =  import.GetErrorString();
@@ -151,12 +158,12 @@ namespace Graphics {
 
             glBindTexture(GL_TEXTURE_2D, textureID);
             glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-            glGenerateMipmap(GL_TEXTURE_2D);
 
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glGenerateMipmap(GL_TEXTURE_2D);
 
             stbi_image_free(data);
         } else {

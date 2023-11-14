@@ -21,7 +21,7 @@ out VS_OUT {
 void main() {
     gl_Position = projection * view * model * vec4(inPos, 1.0);
     vs_out.FragPos = vec3(model * vec4(inPos, 1.0));
-    vs_out.Normal = mat3(transpose(inverse(model))) * inNormal;
+    vs_out.Normal = normalize(mat3(transpose(inverse(model))) * inNormal);
     vs_out.TexCoords = inTexCoords;
     vs_out.FragPosLightSpace = lightSpaceMatrix * vec4(vs_out.FragPos, 1.0);
 }

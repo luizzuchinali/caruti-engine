@@ -1,6 +1,8 @@
 #pragma once
 #include "LightCube.hpp"
 #include "Camera.hpp"
+#include "Graphics/Model.hpp"
+#include "Core/DirectionalLight.hpp"
 
 #include <sstream>
 

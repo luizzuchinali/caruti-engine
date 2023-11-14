@@ -64,6 +64,5 @@ namespace Graphics {
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, Indices.size(), GL_UNSIGNED_INT, nullptr);
         glBindVertexArray(0);
-
     }
 }

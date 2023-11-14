@@ -12,6 +12,7 @@
 #include "Scenes/CubemapScene.hpp"
 #include "Scenes/EnvironmentMappingScene.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "Scenes/InstancingScene.hpp"
 
 #include <memory>
 #include <sstream>
@@ -71,8 +72,8 @@ std::shared_ptr<GLFWwindow> CreateWindow() {
     glfwSetFramebufferSizeCallback(window.get(), FramebufferSizeCallback);
     glfwSetKeyCallback(window.get(), HandleInputCallback);
     glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-    glEnable(GL_MULTISAMPLE);
+//    glDepthFunc(GL_LESS);
+//    glEnable(GL_MULTISAMPLE);
 
 //    glEnable(GL_CULL_FACE);
 //    glFrontFace(GL_CW);
@@ -121,14 +122,13 @@ int main() {
     const auto window = CreateWindow();
     float lastTime = glfwGetTime();
 
-    Core::DirectionalLight directionalLight;
-    directionalLight.Ambient = glm::vec3(0.6, 0.6, 0.6);
     // SponzaScene sponzaScene{};
     // DenseGrassScene denseGrassScene{};
     // SemiTransparentTexturesScene semiTransparentTexturesScene{};
     // FramebufferScene framebufferScene{};
     // CubeMapScene cubemapScene{};
-    EnvironmentMappingScene environmentMappingScene{};
+    // EnvironmentMappingScene environmentMappingScene{};
+    InstancingScene instancingScene{};
 
     unsigned int matricesUBO, matricesBindingPort = 0;
     glGenBuffers(1, &matricesUBO);
@@ -153,19 +153,21 @@ int main() {
         ImGui::NewFrame();
 
         HandleInput(window, MainCamera, deltaTime);
+
         glBindBuffer(GL_UNIFORM_BUFFER, matricesUBO);
         glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(MainCamera.GetViewMatrix()));
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-
         glClearColor(0, 0, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         // sponzaScene.Show(deltaTime, currentTime, MainCamera);
         // denseGrassScene.Show(deltaTime, currentTime, MainCamera);
         // semiTransparentTexturesScene.Show(deltaTime, currentTime, MainCamera);
         // framebufferScene.Show(deltaTime, currentTime, MainCamera);
         // cubemapScene.Show(deltaTime, currentTime, MainCamera);
-        environmentMappingScene.Show(deltaTime, currentTime, MainCamera);
+        // environmentMappingScene.Show(deltaTime, currentTime, MainCamera);
+        instancingScene.Show(deltaTime, currentTime, MainCamera);
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
