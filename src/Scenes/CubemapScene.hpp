@@ -92,7 +92,7 @@ public:
     void Show(const float deltaTime, [[maybe_unused]] const float currentTime, Camera &camera) {
         DirectionalLight.UIRender();
 
-        Skybox.Render(camera);
+        Skybox.Render();
 
         LitShader->Use();
         LitShader->SetVec3("cameraPos", camera.Position);
@@ -106,7 +106,7 @@ public:
 
         LitShader->SetTexture("material.texture_diffuse1", TerrainGrassTexture);
         Plane.Update(deltaTime);
-        Plane.Render(camera.GetCameraMatrix());
+        Plane.Render();
 
         glBindVertexArray(VegetationVAO);
         LitShader->SetTexture("material.texture_diffuse1", GrassTexture);

@@ -35,10 +35,9 @@ public:
         glBindVertexArray(0);
     }
 
-    void Render(const glm::mat4 cameraMatrix) override {
+    void Render() override {
         Shader->Use();
         Shader->SetMat4("model", Model);
-        Shader->SetMat4("camera", cameraMatrix);
 
         glBindVertexArray(VAO);
 

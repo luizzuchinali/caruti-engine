@@ -1,10 +1,14 @@
-#version 330 core
+#version 420 core
 layout (location = 0) in vec3 inPos;
 layout (location = 1) in vec2 inTexCoords;
 layout (location = 2) in vec3 inNormal;
 
+layout (std140, binding = 0) uniform Matrices {
+    mat4 view;
+    mat4 projection;
+};
+
 uniform mat4 model;
-uniform mat4 camera;
 uniform mat4 lightSpaceMatrix;
 
 out VS_OUT {
@@ -15,7 +19,7 @@ out VS_OUT {
 } vs_out;
 
 void main() {
-    gl_Position = camera * model * vec4(inPos, 1.0);
+    gl_Position = projection * view * model * vec4(inPos, 1.0);
     vs_out.FragPos = vec3(model * vec4(inPos, 1.0));
     vs_out.Normal = mat3(transpose(inverse(model))) * inNormal;
     vs_out.TexCoords = inTexCoords;

@@ -40,12 +40,10 @@ namespace Core {
             glBindVertexArray(0);
         }
 
-        void Render(const Camera &camera) const {
+        void Render() const {
             glBindVertexArray(SkyboxVAO);
             glDepthFunc(GL_LEQUAL);
             SkyboxShader.Use();
-            SkyboxShader.SetMat4("view", glm::mat4(glm::mat3(camera.GetViewMatrix())));
-            SkyboxShader.SetMat4("projection", Camera::GetProjectionMatrix());
             glBindVertexArray(SkyboxVAO);
             glBindTexture(GL_TEXTURE_CUBE_MAP, SkyboxTexture);
             glDrawArrays(GL_TRIANGLES, 0, 36);

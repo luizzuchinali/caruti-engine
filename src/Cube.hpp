@@ -35,15 +35,10 @@ public:
 		glBindVertexArray(0);
 	}
 
-	/// <summary>
-	/// Doc
-	/// </summary>
-	/// <param name="cameraMatrix"></param>
-	void Render(glm::mat4 cameraMatrix) override {
+	void Render() override {
 
 		Shader->Use();
 		Shader->SetMat4("model", Model);
-		Shader->SetMat4("camera", cameraMatrix);
 
 		glBindVertexArray(VAO);
 

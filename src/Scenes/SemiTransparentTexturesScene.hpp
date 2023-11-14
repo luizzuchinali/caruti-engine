@@ -88,7 +88,7 @@ public:
 
         LitShader->SetTexture("material.texture_diffuse1", TerrainGrassTexture);
         Plane.Update(deltaTime);
-        Plane.Render(camera.GetCameraMatrix());
+        Plane.Render();
 
         std::map<float, glm::vec3> sortedWindows;
         for (auto Window: Windows) {

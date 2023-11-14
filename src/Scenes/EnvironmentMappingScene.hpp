@@ -92,7 +92,7 @@ public:
         std::uniform_real_distribution<float> disX(-5.3f, 4.3f);
         std::uniform_real_distribution<float> disZ(-5.0f, 5.0f);
 
-        for (int i = 0; i < 300; i++) {
+        for (int i = 0; i < 2000; i++) {
             float randomX = disX(gen);
             float randomZ = disZ(gen);
 
@@ -103,7 +103,7 @@ public:
     void Show(const float deltaTime, [[maybe_unused]] const float currentTime, Camera &camera) {
         DirectionalLight.UIRender();
 
-        Skybox.Render(camera);
+        Skybox.Render();
 
         LitShader->Use();
         LitShader->SetVec3("cameraPos", camera.Position);
@@ -116,7 +116,7 @@ public:
 
         LitShader->SetTexture("material.texture_diffuse1", TerrainGrassTexture);
         GrassPlane.Update(deltaTime);
-        GrassPlane.Render(camera.GetCameraMatrix());
+        GrassPlane.Render();
 
         glBindVertexArray(VegetationVAO);
         LitShader->SetTexture("material.texture_diffuse1", GrassTexture);
@@ -136,7 +136,7 @@ public:
         ReflectionCube.Rotation = {180, glm::sin(currentTime * 0.05) * 360, 180};
         ReflectionCube.Position = {0, 5, 0};
         ReflectionCube.Update(deltaTime);
-        ReflectionCube.Render(camera.GetCameraMatrix());
+        ReflectionCube.Render();
 
         RefractionShader->Use();
         RefractionShader->SetVec3("cameraPos", camera.Position);
@@ -145,7 +145,7 @@ public:
         RefractionCube.Rotation = {180, glm::sin(currentTime * 0.05) * 360, 180};
         RefractionCube.Position = {3, 5, 0};
         RefractionCube.Update(deltaTime);
-        RefractionCube.Render(camera.GetCameraMatrix());
+        RefractionCube.Render();
     }
 };
 

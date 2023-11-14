@@ -82,7 +82,7 @@ public:
 
         LitShader->SetTexture("material.texture_diffuse1", TerrainGrassTexture);
         Plane.Update(deltaTime);
-        Plane.Render(camera.GetCameraMatrix());
+        Plane.Render();
 
         glBindVertexArray(VegetationVAO);
         LitShader->SetTexture("material.texture_diffuse1", GrassTexture);

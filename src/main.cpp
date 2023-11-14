@@ -11,6 +11,7 @@
 #include "Scenes/FramebufferScene.hpp"
 #include "Scenes/CubemapScene.hpp"
 #include "Scenes/EnvironmentMappingScene.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 #include <memory>
 #include <sstream>
@@ -40,8 +41,8 @@ void HandleInputCallback(GLFWwindow *windowPtr, const int key, [[maybe_unused]] 
 
 std::shared_ptr<GLFWwindow> CreateWindow() {
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_SAMPLES, 4);
 
@@ -129,6 +130,19 @@ int main() {
     // CubeMapScene cubemapScene{};
     EnvironmentMappingScene environmentMappingScene{};
 
+    unsigned int matricesUBO, matricesBindingPort = 0;
+    glGenBuffers(1, &matricesUBO);
+    glBindBuffer(GL_UNIFORM_BUFFER, matricesUBO);
+    glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr, GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_UNIFORM_BUFFER, matricesBindingPort, matricesUBO);
+    glBufferSubData(
+            GL_UNIFORM_BUFFER,
+            sizeof(glm::mat4),
+            sizeof(glm::mat4),
+            glm::value_ptr(Camera::GetProjectionMatrix())
+    );
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
     while (!glfwWindowShouldClose(window.get())) {
         const float currentTime = glfwGetTime();
         const float deltaTime = currentTime - lastTime;
@@ -139,6 +153,10 @@ int main() {
         ImGui::NewFrame();
 
         HandleInput(window, MainCamera, deltaTime);
+        glBindBuffer(GL_UNIFORM_BUFFER, matricesUBO);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(MainCamera.GetViewMatrix()));
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
 
         glClearColor(0, 0, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

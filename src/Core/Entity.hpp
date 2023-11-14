@@ -31,7 +31,7 @@ namespace Core {
             Model = scale(Model, Scale);
         }
 
-        virtual void Render(glm::mat4 cameraMatrix) {
+        virtual void Render() {
         }
 
         virtual void UIRender() {

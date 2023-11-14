@@ -6,7 +6,7 @@
 
 class SponzaScene {
 public:
-    Core::DirectionalLight DirectionalLight;
+    Core::DirectionalLight DirectionalLight{};
 
     std::shared_ptr<Graphics::Shader> LightSourceShader = std::make_shared<Graphics::Shader>(
         "VertexShader.vert", "LightSourceShader.frag");
@@ -92,7 +92,6 @@ public:
 
         constexpr glm::mat4 model = glm::mat4(1.0f);
         LitShader->SetMat4("model", model);
-        LitShader->SetMat4("camera", camera.GetCameraMatrix());
         Sponza.Draw(*LitShader);
     }
 };
