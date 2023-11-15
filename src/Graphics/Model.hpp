@@ -10,6 +10,9 @@
 namespace Graphics {
     class Model {
     public:
+        std::vector<TextureIdentifier> TexturesLoaded;
+        std::vector<Mesh> Meshes;
+
         explicit Model(const char *path) {
             LoadModel(path);
 
@@ -23,10 +26,7 @@ namespace Graphics {
         void Draw(Graphics::Shader &shader);
 
     private:
-        std::vector<TextureIdentifier> TexturesLoaded;
-
-        std::vector<Mesh> Meshes;
-        std::string Directory;
+        std::string _directory;
 
         void LoadModel(const std::string &path);
 

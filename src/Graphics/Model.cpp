@@ -24,7 +24,7 @@ namespace Graphics {
             return;
         }
 
-        Directory = path.substr(0, path.find_last_of('/'));
+        _directory = path.substr(0, path.find_last_of('/'));
 
 //        for (unsigned int i = 0; i < scene->mNumMaterials; i++) {
 //            aiMaterial *material = scene->mMaterials[i];
@@ -126,7 +126,7 @@ namespace Graphics {
 
             if (!skip) {
                 TextureIdentifier texture;
-                texture.Id = TextureFromFile(str.C_Str(), Directory, false);
+                texture.Id = TextureFromFile(str.C_Str(), _directory, false);
                 texture.Type = typeName;
                 texture.Path = str.C_Str();
                 textures.push_back(texture);

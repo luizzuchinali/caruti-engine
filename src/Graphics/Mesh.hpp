@@ -23,6 +23,7 @@ namespace Graphics {
         std::vector<Vertex> Vertices;
         std::vector<unsigned int> Indices;
         std::vector<TextureIdentifier> Textures;
+        unsigned int VAO{}, VBO{}, EBO{};
 
         Mesh(const std::vector<Vertex> &vertices,
              const std::vector<unsigned int> &indices,
@@ -31,8 +32,6 @@ namespace Graphics {
         void Draw(Shader &shader);
 
     private:
-        unsigned int VAO{}, VBO{}, EBO{};
-
         void SetupMesh();
     };
 }
