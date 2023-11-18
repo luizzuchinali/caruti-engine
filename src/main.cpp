@@ -13,12 +13,15 @@
 #include "Scenes/EnvironmentMappingScene.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include "Scenes/InstancingScene.hpp"
+#include "Scenes/WoodFloorWithCubesScene.hpp"
 
 #include <memory>
 #include <sstream>
 
 constexpr int WINDOW_WIDTH = 2560, WINDOW_HEIGHT = 1440;
 auto MainCamera = Camera(glm::vec3(0, 15, -15));
+
+void ShowFPS(const ImGuiWindowFlags fpsWindowFlags);
 
 void GLFWWindowDeleter(GLFWwindow *window) {
     glfwDestroyWindow(window);
@@ -121,6 +124,18 @@ void HandleInput(const std::shared_ptr<GLFWwindow> &window, Camera &camera, cons
     camera.ProcessMouseMovement(xPos, yPos);
 }
 
+void ShowFPS() {
+    const ImGuiWindowFlags fpsWindowFlags =
+            ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
+            ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing |
+            ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoBackground;
+    ImGui::SetNextWindowPos(ImVec2(10, 10));
+    auto framerate = ImGui::GetIO().Framerate;
+    ImGui::Begin("FPS", nullptr, fpsWindowFlags);
+    ImGui::Text("%.1d fps %.3f ms/frame", (int) framerate, 1 / framerate * 1000);
+    ImGui::End();
+}
+
 int main() {
     const auto window = CreateWindow();
 
@@ -130,7 +145,8 @@ int main() {
     // FramebufferScene framebufferScene{};
     // CubeMapScene cubemapScene{};
     // EnvironmentMappingScene environmentMappingScene{};
-    InstancingScene instancingScene{};
+//    InstancingScene instancingScene{};
+    WoodFloorWithCubesScene woodFloorWithCubesScene{};
 
     unsigned int matricesUBO, matricesBindingPort = 0;
     glGenBuffers(1, &matricesUBO);
@@ -146,9 +162,7 @@ int main() {
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     float lastTime = glfwGetTime();
-    ImGuiWindowFlags fpsWindowFlags =
-            ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings |
-            ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoBackground;
+
     while (!glfwWindowShouldClose(window.get())) {
         const float currentTime = glfwGetTime();
         const float deltaTime = currentTime - lastTime;
@@ -160,11 +174,7 @@ int main() {
         ImGui::NewFrame();
 //        ImGui::ShowDemoWindow();
 
-        ImGui::SetNextWindowPos(ImVec2(10, 10));
-        auto framerate = ImGui::GetIO().Framerate;
-        ImGui::Begin("FPS", nullptr, fpsWindowFlags);
-        ImGui::Text("%.1d fps %.3f ms/frame", (int) framerate, 1/framerate * 1000);
-        ImGui::End();
+        ShowFPS();
 
         HandleInput(window, MainCamera, deltaTime);
 
@@ -181,7 +191,8 @@ int main() {
         // framebufferScene.Show(deltaTime, currentTime, MainCamera);
         // cubemapScene.Show(deltaTime, currentTime, MainCamera);
         // environmentMappingScene.Show(deltaTime, currentTime, MainCamera);
-        instancingScene.Show(deltaTime, currentTime, MainCamera);
+//        instancingScene.Show(deltaTime, currentTime, MainCamera);
+        woodFloorWithCubesScene.Show(deltaTime, currentTime, MainCamera);
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -196,3 +207,4 @@ int main() {
 
     exit(0);
 }
+

@@ -13,7 +13,7 @@ public:
     std::shared_ptr<Graphics::Shader> LightSourceShader = std::make_shared<Graphics::Shader>(
         "VertexShader.vert", "LightSourceShader.frag");
     std::shared_ptr<Graphics::Shader> LitShader = std::make_shared<Graphics::Shader>(
-        "VertexShader.vert", "LightingShader.frag");
+        "VertexShader.vert", "LitShader.frag");
 
     LightCube LightCubes[4] = {
         LightCube(LightSourceShader, glm::vec3(-50, 50, -50), glm::vec3(0), glm::vec3(30)),
@@ -65,7 +65,7 @@ public:
         for (int i = 0; i < sizeof(LightCubes) / sizeof(LightCube); i++) {
             LightCubes[i].Position.x += offset;
             LightCubes[i].Update(deltaTime);
-            LightCubes[i].Render(camera.GetCameraMatrix());
+            LightCubes[i].Render();
 
             std::ostringstream name;
             name << "pointLights[" << i << "].";

@@ -18,7 +18,7 @@ public:
     Core::DirectionalLight DirectionalLight;
     std::shared_ptr<Graphics::Shader> LitShader = std::make_shared<Graphics::Shader>(
             "VertexShader.vert",
-            "LightingShader.frag"
+            "LitShader.frag"
     );
 
     Core::Skybox Skybox = Core::Skybox(std::vector<std::string>{
@@ -31,7 +31,7 @@ public:
     });
 
     Graphics::Texture TerrainGrassTexture = Graphics::Texture(
-            "forrest_ground_01/forrest_ground_01_diff_1k.jpg",
+            "resources/textures/forrest_ground_01/forrest_ground_01_diff_1k.jpg",
             GL_TEXTURE0
     );
 

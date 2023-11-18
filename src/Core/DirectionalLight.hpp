@@ -38,6 +38,7 @@ namespace Core {
                 ImGui::InputFloat3("Ambient", &Ambient[0]);
                 ImGui::InputFloat3("Diffuse", &Diffuse[0]);
                 ImGui::InputFloat3("Specular", &Specular[0]);
+                ImGui::InputFloat3("Specular", &Specular[0]);
             }
 
             ImGui::End();

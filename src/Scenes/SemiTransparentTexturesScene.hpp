@@ -16,9 +16,9 @@ public:
     unsigned int VAO{}, VBO{};
     Core::DirectionalLight DirectionalLight;
     std::shared_ptr<Graphics::Shader> LitShader = std::make_shared<Graphics::Shader>("VertexShader.vert",
-                                                                                     "LightingShader.frag");
-    Graphics::Texture TerrainGrassTexture = Graphics::Texture("TerrainGrassTexture.jpg", GL_RGB, GL_TEXTURE0);
-    Graphics::Texture WindowTexture = Graphics::Texture("blending_transparent_window.png", GL_RGBA, GL_TEXTURE1);
+                                                                                     "LitShader.frag");
+    Graphics::Texture TerrainGrassTexture = Graphics::Texture("resources/textures/TerrainGrassTexture.jpg", GL_RGB, GL_TEXTURE0);
+    Graphics::Texture WindowTexture = Graphics::Texture("resources/textures/blending_transparent_window.png", GL_RGBA, GL_TEXTURE1);
 
     Plane Plane;
     std::vector<glm::vec3> Windows;

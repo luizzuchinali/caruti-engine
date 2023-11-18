@@ -19,12 +19,12 @@ public:
     Core::DirectionalLight DirectionalLight;
 
     std::shared_ptr<Graphics::Shader> LitShader = std::make_shared<Graphics::Shader>("VertexShader.vert",
-                                                                                     "LightingShader.frag");
+                                                                                     "LitShader.frag");
     std::shared_ptr<Graphics::Shader> Shader = std::make_shared<Graphics::Shader>("FramebufferScreenShader.vert",
                                                                                   "FramebufferScreenShader.frag");
     Graphics::Texture TerrainGrassTexture = Graphics::Texture("TerrainGrassTexture.jpg", GL_TEXTURE0);
-    Graphics::Texture GrassTexture = Graphics::Texture("grass.png", GL_TEXTURE0, GL_CLAMP_TO_EDGE);
-    Graphics::Texture CrateTexture = Graphics::Texture("crate/Crate_diffuse.jpg", GL_TEXTURE0);
+    Graphics::Texture GrassTexture = Graphics::Texture("resources/textures/grass.png", GL_TEXTURE0, GL_CLAMP_TO_EDGE);
+    Graphics::Texture CrateTexture = Graphics::Texture("resources/textures/crate/Crate_diffuse.jpg", GL_TEXTURE0);
 
     Plane Plane;
     Cube Cube;

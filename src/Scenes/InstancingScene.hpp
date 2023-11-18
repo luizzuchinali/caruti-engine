@@ -19,12 +19,12 @@ public:
     Core::DirectionalLight DirectionalLight;
     std::shared_ptr<Graphics::Shader> LitShader = std::make_shared<Graphics::Shader>(
             "VertexShader.vert",
-            "LightingShader.frag"
+            "LitShader.frag"
     );
 
     std::shared_ptr<Graphics::Shader> InstancingLitShader = std::make_shared<Graphics::Shader>(
             "InstancingShader.vert",
-            "LightingShader.frag"
+            "LitShader.frag"
     );
 
     Core::Skybox Skybox = Core::Skybox(std::vector<std::string>{

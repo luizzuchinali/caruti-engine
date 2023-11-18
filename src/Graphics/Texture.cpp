@@ -3,8 +3,6 @@
 namespace Graphics {
 
     Texture::Texture(const char *texPath, GLenum index, GLint wrap) : _index(index) {
-        const std::string basePath = "resources/textures/";
-
         stbi_set_flip_vertically_on_load(true);
 
         glGenTextures(1, &_id);
@@ -15,7 +13,7 @@ namespace Graphics {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
         unsigned char *buffer = stbi_load(
-                (basePath + texPath).c_str(),
+                texPath,
                 &_width, &_height,
                 &_nrChannels, 0);
 

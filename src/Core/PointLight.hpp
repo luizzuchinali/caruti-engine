@@ -35,6 +35,7 @@ namespace Core {
         void UIRender() override {
             if (!ImGui::Begin("Light Settings")) {
                 ImGui::End();
+                return;
             }
 
             if (ImGui::CollapsingHeader(Id.c_str())) {
