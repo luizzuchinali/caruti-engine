@@ -78,7 +78,7 @@ public:
         glGenTextures(1, &depthMapTexture);
         glBindTexture(GL_TEXTURE_2D, depthMapTexture);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT,
-                     NULL);
+                     nullptr);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -96,12 +96,12 @@ public:
         glBindBuffer(GL_ARRAY_BUFFER, ScreenVBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(ScreenVertices), &ScreenVertices, GL_STATIC_DRAW);
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) 0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), nullptr);
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3 * sizeof(float)));
     }
 
-    void RenderScene(float deltaTime, float currentTime, Graphics::Shader &shader) {
+    void RenderScene(float deltaTime, [[maybe_unused]]float currentTime, Graphics::Shader &shader) {
         shader.Use();
 
         shader.SetTexture("material.texture_diffuse1", WoodFloorTexture);
@@ -125,8 +125,8 @@ public:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         float near_plane = 1.0f, far_plane = 50;
-        glm::mat4 lightProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
-        glm::mat4 lightView = glm::lookAt({-2.0f, 30.0f, -1.0f}, glm::vec3(0),
+        glm::mat4 lightProjection = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, near_plane, far_plane);
+        glm::mat4 lightView = glm::lookAt({-2.0f, 15.0f, -1.0f}, glm::vec3(0),
                                           glm::vec3(0.0f, 1.0f, 0.0f));
 
         glm::mat4 lightSpaceMatrix = lightProjection * lightView;
