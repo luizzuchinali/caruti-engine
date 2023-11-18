@@ -74,7 +74,7 @@ vec4 CalcDirLight(DirectionalLight light, vec3 normal, vec3 viewDir)
     float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
 
     vec4 texelAlpha = texture(material.texture_diffuse1, fs_in.TexCoords);
-    vec3 texelNoAlpha = vec3(texelAlpha);
+    vec3 texelNoAlpha = texelAlpha.rgb;
 
     vec3 ambient = light.ambient * texelNoAlpha;
     vec3 diffuse = light.diffuse * diff * texelNoAlpha;
@@ -92,9 +92,10 @@ vec4 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 
     float distance = length(light.position - fragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+//    float attenuation = 1.0 / distance;
 
     vec4 texelAlpha = texture(material.texture_diffuse1, fs_in.TexCoords);
-    vec3 texelNoAlpha = vec3(texelAlpha);
+    vec3 texelNoAlpha = texelAlpha.rgb;
 
     vec3 ambient = light.ambient * texelNoAlpha;
     vec3 diffuse = light.diffuse * diff * texelNoAlpha;
@@ -118,13 +119,14 @@ vec4 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 
     float distance = length(light.position - fragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+//    float attenuation = 1.0 / distance;
 
     float theta = dot(lightDir, normalize(-light.direction));
     float epsilon = light.cutOff - light.outerCutOff;
     float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
 
     vec4 texelAlpha = texture(material.texture_diffuse1, fs_in.TexCoords);
-    vec3 texelNoAlpha = vec3(texelAlpha);
+    vec3 texelNoAlpha = texelAlpha.rgb;
 
     vec3 ambient = light.ambient * texelNoAlpha;
     vec3 diffuse = light.diffuse * diff * texelNoAlpha;
@@ -153,6 +155,6 @@ void main() {
     }
 
     //fragOutput += CalcSpotLight(spotLight, fs_in.Normal, fs_in.FragPos, viewDir);
-
-    FragOutColor = fragOutput;
+    float gamma = 2.2;
+    FragOutColor.rgb = pow(fragOutput.rgb, vec3(1.0 / gamma));
 }

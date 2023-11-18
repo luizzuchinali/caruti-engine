@@ -9,7 +9,7 @@ namespace Graphics {
 
     class Texture {
     public:
-        Texture(const char *texPath, GLenum index, GLint wrap = GL_REPEAT);
+        Texture(const char *texPath, GLenum index, GLint wrap = GL_REPEAT, bool gammaCorrection = false);
 
         void ActivateAndBind() const;
 

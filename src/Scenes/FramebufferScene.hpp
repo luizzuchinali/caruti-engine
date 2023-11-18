@@ -24,7 +24,6 @@ public:
                                                                                   "FramebufferScreenShader.frag");
     Graphics::Texture TerrainGrassTexture = Graphics::Texture("TerrainGrassTexture.jpg", GL_TEXTURE0);
     Graphics::Texture GrassTexture = Graphics::Texture("resources/textures/grass.png", GL_TEXTURE0, GL_CLAMP_TO_EDGE);
-    Graphics::Texture CrateTexture = Graphics::Texture("resources/textures/crate/Crate_diffuse.jpg", GL_TEXTURE0);
 
     Plane Plane;
     Cube Cube;
@@ -120,7 +119,7 @@ public:
         // first pass
         glBindFramebuffer(GL_FRAMEBUFFER, FBO);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // we're not using the stencil buffer now
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
 
         LitShader->Use();

@@ -2,7 +2,7 @@
 
 namespace Graphics {
 
-    Texture::Texture(const char *texPath, GLenum index, GLint wrap) : _index(index) {
+    Texture::Texture(const char *texPath, GLenum index, GLint wrap, bool gammaCorrection) : _index(index) {
         stbi_set_flip_vertically_on_load(true);
 
         glGenTextures(1, &_id);
@@ -18,15 +18,24 @@ namespace Graphics {
                 &_nrChannels, 0);
 
         if (buffer) {
-            GLenum format;
+            GLenum internalFormat;
+            GLenum dataFormat;
             if (_nrChannels == 1)
-                format = GL_RED;
+            {
+                internalFormat = dataFormat = GL_RED;
+            }
             else if (_nrChannels == 3)
-                format = GL_RGB;
+            {
+                internalFormat = gammaCorrection ? GL_SRGB : GL_RGB;
+                dataFormat = GL_RGB;
+            }
             else if (_nrChannels == 4)
-                format = GL_RGBA;
+            {
+                internalFormat = gammaCorrection ? GL_SRGB_ALPHA : GL_RGBA;
+                dataFormat = GL_RGBA;
+            }
 
-            glTexImage2D(GL_TEXTURE_2D, 0, format, _width, _height, 0, format, GL_UNSIGNED_BYTE, buffer);
+            glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, _width, _height, 0, dataFormat, GL_UNSIGNED_BYTE, buffer);
             glGenerateMipmap(GL_TEXTURE_2D);
         } else {
             Log::Error("TEXTURE::LOAD_FAILED {}", texPath);
