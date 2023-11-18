@@ -140,7 +140,7 @@ vec4 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, flo
     return vec4(ambient + (1.0 - shadow) * (diffuse + specular), texelAlpha.a);
 }
 
-float ShadowCalculation(vec4 fragPosLightSpace)
+float ShadowCalculation(vec4 fragPosLightSpace, DirectionalLight dirLight, vec3 normal)
 {
     // perform perspective divide
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
@@ -151,7 +151,9 @@ float ShadowCalculation(vec4 fragPosLightSpace)
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
     // check whether current frag pos is in shadow
-    float bias = 0.005;
+
+    vec3 lightDir = normalize(-dirLight.direction);
+    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
     float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 
     return shadow;
@@ -167,7 +169,7 @@ void main() {
     vec3 norm = normalize(fs_in.Normal);
     vec3 viewDir = normalize(cameraPos - fs_in.FragPos);
 
-    float shadow = ShadowCalculation(fs_in.FragPosLightSpace);
+    float shadow = ShadowCalculation(fs_in.FragPosLightSpace, dirLight, fs_in.Normal);
 
     fragOutput += CalcDirLight(dirLight, fs_in.Normal, viewDir, shadow);
     if (pointLightCount > 0) {
