@@ -14,6 +14,7 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "Scenes/InstancingScene.hpp"
 #include "Scenes/WoodFloorWithCubesScene.hpp"
+#include "Scenes/WoodFloorWithCubesSceneWithShadow.hpp"
 
 #include <memory>
 #include <sstream>
@@ -146,7 +147,8 @@ int main() {
     // CubeMapScene cubemapScene{};
     // EnvironmentMappingScene environmentMappingScene{};
 //    InstancingScene instancingScene{};
-    WoodFloorWithCubesScene woodFloorWithCubesScene{};
+//    WoodFloorWithCubesScene woodFloorWithCubesScene{};
+    WoodFloorWithCubesSceneWithShadow woodFloorWithCubesSceneWithShadow{};
 
     unsigned int matricesUBO, matricesBindingPort = 0;
     glGenBuffers(1, &matricesUBO);
@@ -192,7 +194,8 @@ int main() {
         // cubemapScene.Show(deltaTime, currentTime, MainCamera);
         // environmentMappingScene.Show(deltaTime, currentTime, MainCamera);
 //        instancingScene.Show(deltaTime, currentTime, MainCamera);
-        woodFloorWithCubesScene.Show(deltaTime, currentTime, MainCamera);
+//        woodFloorWithCubesScene.Show(deltaTime, currentTime, MainCamera);
+        woodFloorWithCubesSceneWithShadow.Show(deltaTime, currentTime, MainCamera);
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

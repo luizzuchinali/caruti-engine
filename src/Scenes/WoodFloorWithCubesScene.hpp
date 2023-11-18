@@ -3,6 +3,8 @@
 #include "LightCube.hpp"
 #include "Core/DirectionalLight.hpp"
 #include "Floor.hpp"
+#include "Camera.hpp"
+
 
 #include <sstream>
 #include <memory>
@@ -29,7 +31,7 @@ public:
             LightCube(LightSourceShader, {5, 2, 0})
     };
 
-    WoodFloorWithCubesScene() : Floor(LitShader, {-20, 0, -20}) {
+    WoodFloorWithCubesScene() : Floor({-20, 0, -20}) {
         DirectionalLight.Ambient = {0, 0, 0};
         DirectionalLight.Diffuse = {0, 0, 0};
         DirectionalLight.Specular = {0, 0, 0};
@@ -58,7 +60,7 @@ public:
 
             LightCubes[i].Position.y += yoffset;
             LightCubes[i].Update(deltaTime);
-            LightCubes[i].Render();
+            LightCubes[i].Render(*LightSourceShader);
 
             std::ostringstream name;
             name << "pointLights[" << i << "].";
@@ -89,6 +91,6 @@ public:
         LitShader->SetTexture("material.texture_diffuse1", WoodFloorTexture);
         LitShader->SetFloat("material.shininess", 2.0f);
         Floor.Update(deltaTime);
-        Floor.Render();
+        Floor.Render(*LitShader);
     }
 };

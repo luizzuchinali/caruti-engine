@@ -2,6 +2,7 @@
 
 #include "glm/glm.hpp"
 #include "glm/ext/matrix_transform.hpp"
+#include "Graphics/Shader.hpp"
 
 namespace Core {
 
@@ -31,7 +32,7 @@ namespace Core {
             Model = scale(Model, Scale);
         }
 
-        virtual void Render() {
+        virtual void Render(Graphics::Shader &shader) {
         }
 
         virtual void UIRender() {

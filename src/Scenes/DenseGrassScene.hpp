@@ -32,7 +32,7 @@ public:
             1.0f, 0.5f, 0.0f, 1.0f, 1.0f, 0, 0, 1,
     };
 
-    DenseGrassScene() : Plane(LitShader) {
+    DenseGrassScene() {
         DirectionalLight.Ambient = glm::vec3(0.2, 0.2, 0.2);
 
         LitShader->Use();
@@ -82,7 +82,7 @@ public:
 
         LitShader->SetTexture("material.texture_diffuse1", TerrainGrassTexture);
         Plane.Update(deltaTime);
-        Plane.Render();
+        Plane.Render(*LitShader);
 
         glBindVertexArray(VegetationVAO);
         LitShader->SetTexture("material.texture_diffuse1", GrassTexture);

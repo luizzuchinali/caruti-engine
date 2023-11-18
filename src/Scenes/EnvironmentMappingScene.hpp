@@ -62,8 +62,7 @@ public:
     Cube RefractionCube;
 
 
-    EnvironmentMappingScene() : ReflectionCube(ReflectionShader), RefractionCube(RefractionShader),
-                                GrassPlane(LitShader) {
+    EnvironmentMappingScene()  {
         DirectionalLight.Direction = glm::vec3(-0.2, -1, -1);
         DirectionalLight.Ambient = glm::vec3(0.4, 0.4, 0.4);
         DirectionalLight.Diffuse = glm::vec3(0.8, 0.8, 0.8);
@@ -116,7 +115,7 @@ public:
 
         LitShader->SetTexture("material.texture_diffuse1", TerrainGrassTexture);
         GrassPlane.Update(deltaTime);
-        GrassPlane.Render();
+        GrassPlane.Render(*LitShader);
 
         glBindVertexArray(VegetationVAO);
         LitShader->SetTexture("material.texture_diffuse1", GrassTexture);
@@ -136,7 +135,7 @@ public:
         ReflectionCube.Rotation = {180, glm::sin(currentTime * 0.05) * 360, 180};
         ReflectionCube.Position = {0, 5, 0};
         ReflectionCube.Update(deltaTime);
-        ReflectionCube.Render();
+        ReflectionCube.Render(*ReflectionShader);
 
         RefractionShader->Use();
         RefractionShader->SetVec3("cameraPos", camera.Position);
@@ -145,7 +144,7 @@ public:
         RefractionCube.Rotation = {180, glm::sin(currentTime * 0.05) * 360, 180};
         RefractionCube.Position = {3, 5, 0};
         RefractionCube.Update(deltaTime);
-        RefractionCube.Render();
+        RefractionCube.Render(*RefractionShader);
     }
 };
 

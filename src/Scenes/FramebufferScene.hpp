@@ -50,7 +50,7 @@ public:
             1.0f, 1.0f, 1.0f, 1.0f
     };
 
-    FramebufferScene() : Plane(LitShader), Cube(LitShader) {
+    FramebufferScene() {
         DirectionalLight.Ambient = glm::vec3(0.2, 0.2, 0.2);
         glGenVertexArrays(1, &VegetationVAO);
         glBindVertexArray(VegetationVAO);
@@ -133,7 +133,7 @@ public:
 
         LitShader->SetTexture("material.texture_diffuse1", TerrainGrassTexture);
         Plane.Update(deltaTime);
-        Plane.Render();
+        Plane.Render(*LitShader);
 
         glBindVertexArray(VegetationVAO);
         LitShader->SetTexture("material.texture_diffuse1", GrassTexture);

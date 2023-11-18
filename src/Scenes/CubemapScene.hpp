@@ -51,7 +51,7 @@ public:
     };
 
 
-    CubeMapScene() : Plane(LitShader) {
+    CubeMapScene() {
         DirectionalLight.Direction = glm::vec3(-0.2, -1, -1);
         DirectionalLight.Ambient = glm::vec3(0.4, 0.4, 0.4);
         DirectionalLight.Diffuse = glm::vec3(0.8, 0.8, 0.8);
@@ -106,7 +106,7 @@ public:
 
         LitShader->SetTexture("material.texture_diffuse1", TerrainGrassTexture);
         Plane.Update(deltaTime);
-        Plane.Render();
+        Plane.Render(*LitShader);
 
         glBindVertexArray(VegetationVAO);
         LitShader->SetTexture("material.texture_diffuse1", GrassTexture);

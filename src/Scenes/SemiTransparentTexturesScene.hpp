@@ -33,7 +33,7 @@ public:
             1.0f, 0.5f, 0.0f, 1.0f, 1.0f, 0, 0, 1
     };
 
-    SemiTransparentTexturesScene() : Plane(LitShader) {
+    SemiTransparentTexturesScene() {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -88,7 +88,7 @@ public:
 
         LitShader->SetTexture("material.texture_diffuse1", TerrainGrassTexture);
         Plane.Update(deltaTime);
-        Plane.Render();
+        Plane.Render(*LitShader);
 
         std::map<float, glm::vec3> sortedWindows;
         for (auto Window: Windows) {

@@ -8,14 +8,10 @@ class Floor : public Core::Entity {
 public:
     unsigned int VBO{}, VAO{};
 
-    std::shared_ptr<Graphics::Shader> Shader;
-
-    explicit Floor(
-            const std::shared_ptr<Graphics::Shader> &shader,
-            glm::vec3 position = glm::vec3(0, 0, 0),
-            glm::vec3 rotation = glm::vec3(0, 0, 0),
-            glm::vec3 scale = glm::vec3(10, 1, 10)
-    ) : Shader(shader), Entity(position, rotation, scale) {
+    explicit Floor(glm::vec3 position = glm::vec3(0, 0, 0),
+                   glm::vec3 rotation = glm::vec3(0, 0, 0),
+                   glm::vec3 scale = glm::vec3(10, 1, 10)
+    ) : Entity(position, rotation, scale) {
         glGenVertexArrays(1, &VAO);
         glBindVertexArray(VAO);
 
@@ -35,9 +31,9 @@ public:
         glBindVertexArray(0);
     }
 
-    void Render() override {
-        Shader->Use();
-        Shader->SetMat4("model", Model);
+    void Render(Graphics::Shader &shader) override {
+        shader.Use();
+        shader.SetMat4("model", Model);
 
         glBindVertexArray(VAO);
 
@@ -48,12 +44,12 @@ public:
 
     constexpr const static float Vertices[48] = {
             // positions          // texture Coords
-            5.0f, -0.5f, 5.0f,   5.0f, 0.0f, 0, 1, 0,
-            -5.0f, -0.5f, 5.0f,  0.0f, 0.0f, 0, 1, 0,
-            -5.0f, -0.5f, -5.0f, 0.0f, 5.0f, 0, 1, 0,
+            5.0f, -0.5f, 5.0f, 10.0f, 0.0f, 0, 1, 0,
+            -5.0f, -0.5f, 5.0f, 0.0f, 0.0f, 0, 1, 0,
+            -5.0f, -0.5f, -5.0f, 0.0f, 10.0f, 0, 1, 0,
 
-            5.0f, -0.5f, 5.0f,   5.0f, 0.0f, 0, 1, 0,
-            -5.0f, -0.5f, -5.0f, 0.0f, 5.0f, 0, 1, 0,
-            5.0f, -0.5f, -5.0f,  5.0f, 5.0f, 0, 1, 0,
+            5.0f, -0.5f, 5.0f, 10.0f, 0.0f, 0, 1, 0,
+            -5.0f, -0.5f, -5.0f, 0.0f, 10.0f, 0, 1, 0,
+            5.0f, -0.5f, -5.0f, 10.0f, 10.0f, 0, 1, 0,
     };
 };
