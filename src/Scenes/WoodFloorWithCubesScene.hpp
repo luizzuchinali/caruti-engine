@@ -26,7 +26,7 @@ public:
             "VertexShader.vert", "LightSourceShader.frag"
     );
     LightCube LightCubes[1] = {
-            LightCube(LightSourceShader, {5, 5, 0})
+            LightCube(LightSourceShader, {5, 2, 0})
     };
 
     WoodFloorWithCubesScene() : Floor(LitShader, {-20, 0, -20}) {
@@ -51,8 +51,12 @@ public:
         LitShader->SetVec3("dirLight.specular", DirectionalLight.Specular);
 
         LitShader->SetInt("pointLightCount", sizeof(LightCubes) / sizeof(LightCube));
+
+        float yoffset = glm::sin(currentTime) * 0.1;
         for (int i = 0; i < sizeof(LightCubes) / sizeof(LightCube); i++) {
             LightCubes[i].UIRender();
+
+            LightCubes[i].Position.y += yoffset;
             LightCubes[i].Update(deltaTime);
             LightCubes[i].Render();
 

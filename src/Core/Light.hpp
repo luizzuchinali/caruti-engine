@@ -5,8 +5,8 @@
 namespace Core {
     struct LightProps {
         glm::vec3 Ambient = {0.05, 0.05, 0.05};
-        glm::vec3 Diffuse = {0.8, 0.8, 0.8};
-        glm::vec3 Specular = {0.8, 0.8, 0.8};
+        glm::vec3 Diffuse = {1, 1, 1};
+        glm::vec3 Specular = {0.2, 0.2, 0.2};
     };
 
     class Light : public Core::Entity {
