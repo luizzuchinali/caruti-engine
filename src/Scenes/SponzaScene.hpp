@@ -65,7 +65,7 @@ public:
         for (int i = 0; i < sizeof(LightCubes) / sizeof(LightCube); i++) {
             LightCubes[i].Position.x += offset;
             LightCubes[i].Update(deltaTime);
-            LightCubes[i].Render();
+            LightCubes[i].Render(*LightSourceShader);
 
             std::ostringstream name;
             name << "pointLights[" << i << "].";

@@ -30,6 +30,7 @@ public:
             LightCube(LightSourceShader, {5, 2, 0})
     };
 
+    Graphics::Model SunModel = Graphics::Model("resources/models/Sun.glb");
 
     Cube Cubes[9] = {
             Cube({3, 3, 0}),
@@ -111,9 +112,11 @@ public:
 
         shader.SetTexture("material.texture_diffuse1", WoodFloorTexture);
         shader.SetFloat("material.shininess", 2.0f);
-        for (auto &cube: Cubes) {
-            cube.Update(deltaTime);
-            cube.Render(shader);
+
+        for (int i = 0; i < sizeof(Cubes) / sizeof(Cube); ++i) {
+            Cubes[i].Position.z += glm::sin(currentTime * 0.2 + i) * 0.02;
+            Cubes[i].Update(deltaTime);
+            Cubes[i].Render(shader);
         }
     }
 
@@ -124,12 +127,13 @@ public:
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        float near_plane = 1.0f, far_plane = 50;
-        glm::mat4 lightProjection = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, near_plane, far_plane);
-        glm::mat4 lightView = glm::lookAt({-2.0f, 15.0f, -1.0f}, glm::vec3(0),
-                                          glm::vec3(0.0f, 1.0f, 0.0f));
-
+        float near_plane = 1.0f, far_plane = 100;
+        glm::mat4 lightProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
+        glm::vec3 lightDirectionOffset = -DirectionalLight.Direction * glm::vec3(10);
+        glm::vec3 eyePosition = lightDirectionOffset + glm::vec3(0);
+        glm::mat4 lightView = glm::lookAt(eyePosition, glm::vec3(0), glm::vec3(0.0f, 1.0f, 0.0f));
         glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+
         DepthShader->Use();
         DepthShader->SetMat4("lightSpaceMatrix", lightSpaceMatrix);
 
@@ -155,6 +159,12 @@ public:
 
         glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 //        glClear(GL_COLOR_BUFFER_BIT);
+
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, eyePosition);
+        LightSourceShader->Use();
+        LightSourceShader->SetMat4("model", model);
+        SunModel.Draw(*LightSourceShader);
 
         LitShader->Use();
         LitShader->SetVec3("cameraPos", camera.Position);
@@ -205,5 +215,7 @@ public:
         glBindTexture(GL_TEXTURE_2D, depthMapTexture);
         RenderScene(deltaTime, currentTime, *LitShader);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
     }
 };
