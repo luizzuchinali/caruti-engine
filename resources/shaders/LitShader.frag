@@ -165,7 +165,7 @@ float ShadowCalculation(vec4 fragPosLightSpace, DirectionalLight dirLight, vec3 
             shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
         }
     }
-    shadow /= 9.0;
+    shadow /= 18.0;
 
     if (projCoords.z > 1.0) {
         shadow = 0.0;

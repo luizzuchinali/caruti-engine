@@ -66,7 +66,7 @@ public:
     WoodFloorWithCubesSceneWithShadow() :
             Floor({-20, 0, -20}) {
 
-        DirectionalLight.Ambient = {0.4, 0.4, 0.4};
+        DirectionalLight.Ambient = {0.1, 0.1, 0.1};
         DirectionalLight.Diffuse = {0.7, 0.7, 0.7};
         DirectionalLight.Specular = {0.5, 0.5, 0.5};
 
@@ -131,12 +131,15 @@ public:
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        float x = glm::sin(currentTime * 0.5);
+        float z = glm::cos(currentTime * 0.5);
+        DirectionalLight.Direction.x = x;
+        DirectionalLight.Direction.z = z;
         float near_plane = 1.0f, far_plane = 100;
         glm::mat4 lightProjection = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, near_plane, far_plane);
         glm::vec3 lightDirectionOffset = -DirectionalLight.Direction * glm::vec3(30);
 
-        float x = glm::sin(currentTime) * 25;
-        float z = glm::cos(currentTime) * 25;
+
         glm::vec3 eyePosition = lightDirectionOffset + glm::vec3(x, 0, z);
         glm::mat4 lightView = glm::lookAt(eyePosition, glm::vec3(0), glm::vec3(0.0f, 1.0f, 0.0f));
         glm::mat4 lightSpaceMatrix = lightProjection * lightView;
