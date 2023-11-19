@@ -34,14 +34,14 @@ public:
 
     Cube Cubes[9] = {
             Cube({3, 3, 0}),
-            Cube({6, 3, 0}),
-            Cube({9, 3, 0}),
+            Cube({6, 4, 0}),
+            Cube({9, 5, 0}),
             Cube({0, 1, 0}),
-            Cube({-3, 3, 0}),
-            Cube({-6, 3, 0}),
-            Cube({-9, 3, 0}),
-            Cube({-12, 3, 0}),
-            Cube({-15, 3, 0}),
+            Cube({-3, 2, 0}),
+            Cube({-6, 2.5, 0}),
+            Cube({-9, 2.7, 0}),
+            Cube({-12, 2, 0}),
+            Cube({-15, 4.5, 0}),
     };
 
     const unsigned int SHADOW_WIDTH = 2560, SHADOW_HEIGHT = 1440;
@@ -66,8 +66,8 @@ public:
     WoodFloorWithCubesSceneWithShadow() :
             Floor({-20, 0, -20}) {
 
-        DirectionalLight.Ambient = {0.1, 0.1, 0.1};
-        DirectionalLight.Diffuse = {1, 1, 1};
+        DirectionalLight.Ambient = {0.4, 0.4, 0.4};
+        DirectionalLight.Diffuse = {0.7, 0.7, 0.7};
         DirectionalLight.Specular = {0.5, 0.5, 0.5};
 
         for (int i = 0; i < sizeof(LightCubes) / sizeof(LightCube); i++) {
@@ -84,6 +84,8 @@ public:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        float borderColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
+        glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMapTexture, 0);
@@ -107,6 +109,8 @@ public:
 
         shader.SetTexture("material.texture_diffuse1", WoodFloorTexture);
         shader.SetFloat("material.shininess", 2.0f);
+        Floor.Position.z = round(Floor.Scale.z / 2);
+        Floor.Position.x = round(Floor.Scale.x / 2);
         Floor.Update(deltaTime);
         Floor.Render(shader);
 
@@ -114,7 +118,7 @@ public:
         shader.SetFloat("material.shininess", 2.0f);
 
         for (int i = 0; i < sizeof(Cubes) / sizeof(Cube); ++i) {
-            Cubes[i].Position.z += glm::sin(currentTime * 0.2 + i) * 0.02;
+            Cubes[i].Position.z += glm::sin(currentTime * 0.2 + i) * 0.01;
             Cubes[i].Update(deltaTime);
             Cubes[i].Render(shader);
         }
@@ -128,9 +132,12 @@ public:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         float near_plane = 1.0f, far_plane = 100;
-        glm::mat4 lightProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
-        glm::vec3 lightDirectionOffset = -DirectionalLight.Direction * glm::vec3(10);
-        glm::vec3 eyePosition = lightDirectionOffset + glm::vec3(0);
+        glm::mat4 lightProjection = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, near_plane, far_plane);
+        glm::vec3 lightDirectionOffset = -DirectionalLight.Direction * glm::vec3(30);
+
+        float x = glm::sin(currentTime) * 25;
+        float z = glm::cos(currentTime) * 25;
+        glm::vec3 eyePosition = lightDirectionOffset + glm::vec3(x, 0, z);
         glm::mat4 lightView = glm::lookAt(eyePosition, glm::vec3(0), glm::vec3(0.0f, 1.0f, 0.0f));
         glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 
@@ -140,7 +147,9 @@ public:
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
         glClear(GL_DEPTH_BUFFER_BIT);
+        glCullFace(GL_FRONT);
         RenderScene(deltaTime, currentTime, *DepthShader);
+        glCullFace(GL_BACK);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 // 2. then render scene as normal with shadow mapping (using depth map)
@@ -183,7 +192,7 @@ public:
 //
 //            LightCubes[i].Position.y += yoffset;
 //            LightCubes[i].Update(deltaTime);
-//            LightCubes[i].Render();
+//            LightCubes[i].Render(*LightSourceShader);
 //
 //            std::ostringstream name;
 //            name << "pointLights[" << i << "].";
@@ -215,7 +224,5 @@ public:
         glBindTexture(GL_TEXTURE_2D, depthMapTexture);
         RenderScene(deltaTime, currentTime, *LitShader);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-
     }
 };

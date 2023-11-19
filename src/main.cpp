@@ -79,7 +79,7 @@ std::shared_ptr<GLFWwindow> CreateWindow() {
     //    glDepthFunc(GL_LESS);
     //    glEnable(GL_MULTISAMPLE);
 
-    //    glEnable(GL_CULL_FACE);
+//    glEnable(GL_CULL_FACE);
     //    glFrontFace(GL_CW);
     //    //    glFrontFace(GL_CCW);
     //    glCullFace(GL_BACK);
