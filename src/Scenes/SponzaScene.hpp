@@ -1,4 +1,5 @@
 #pragma once
+
 #include "LightCube.hpp"
 #include "Camera.hpp"
 #include "Graphics/Model.hpp"
@@ -11,15 +12,15 @@ public:
     Core::DirectionalLight DirectionalLight{};
 
     std::shared_ptr<Graphics::Shader> LightSourceShader = std::make_shared<Graphics::Shader>(
-        "VertexShader.vert", "LightSourceShader.frag");
+            "VertexShader.vert", "LightSourceShader.frag");
     std::shared_ptr<Graphics::Shader> LitShader = std::make_shared<Graphics::Shader>(
-        "VertexShader.vert", "LitShader.frag");
+            "VertexShader.vert", "LitShader.frag");
 
     LightCube LightCubes[4] = {
-        LightCube(LightSourceShader, glm::vec3(-50, 50, -50), glm::vec3(0), glm::vec3(30)),
-        LightCube(LightSourceShader, glm::vec3(-40, 50, 50), glm::vec3(0), glm::vec3(30)),
-        LightCube(LightSourceShader, glm::vec3(55, 50, -50), glm::vec3(0), glm::vec3(30)),
-        LightCube(LightSourceShader, glm::vec3(55, 50, 50), glm::vec3(0), glm::vec3(30))
+            LightCube(LightSourceShader, glm::vec3(-50, 50, -50), glm::vec3(0), glm::vec3(30)),
+            LightCube(LightSourceShader, glm::vec3(-40, 50, 50), glm::vec3(0), glm::vec3(30)),
+            LightCube(LightSourceShader, glm::vec3(55, 50, -50), glm::vec3(0), glm::vec3(30)),
+            LightCube(LightSourceShader, glm::vec3(55, 50, 50), glm::vec3(0), glm::vec3(30))
     };
 
     Graphics::Model Sponza = Graphics::Model("resources/models/sponza/sponza.obj");
@@ -33,9 +34,9 @@ public:
         }
     }
 
-    void Show(const float deltaTime, const float currentTime, Camera&camera) {
+    void Show(const float deltaTime, const float currentTime, Camera &camera) {
         DirectionalLight.UIRender();
-        for (auto&lightCube: LightCubes) {
+        for (auto &lightCube: LightCubes) {
             lightCube.UIRender();
         }
 
@@ -61,6 +62,8 @@ public:
         LitShader->SetVec3("dirLight.diffuse", DirectionalLight.Diffuse);
         LitShader->SetVec3("dirLight.specular", DirectionalLight.Specular);
 
+
+        LitShader->SetInt("pointLightCount", sizeof(LightCubes) / sizeof(LightCube));
         const auto offset = glm::sin(2 * glm::pi<float>() * Freq * currentTime) * Amplitude;
         for (int i = 0; i < sizeof(LightCubes) / sizeof(LightCube); i++) {
             LightCubes[i].Position.x += offset;

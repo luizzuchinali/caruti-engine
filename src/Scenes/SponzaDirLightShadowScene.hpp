@@ -1,48 +1,24 @@
 #pragma once
 
 #include "LightCube.hpp"
-#include "Core/DirectionalLight.hpp"
-#include "Floor.hpp"
 #include "Camera.hpp"
+#include "Graphics/Model.hpp"
+#include "Core/DirectionalLight.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 #include <sstream>
-#include <memory>
-#include <random>
 
-class WoodFloorWithCubesSceneWithShadow {
+class SponzaDirLightShadowScene {
 public:
-    Core::DirectionalLight DirectionalLight;
-    std::shared_ptr<Graphics::Shader> LitShader = std::make_shared<Graphics::Shader>(
-            "VertexShader.vert",
-            "LitShader.frag"
-    );
-
-    Floor Floor;
-    Graphics::Texture WoodFloorTexture = Graphics::Texture(
-            "resources/textures/wood_floor_deck/wood_floor_deck_diff.jpg",
-            GL_TEXTURE0, GL_REPEAT, true
-    );
+    Core::DirectionalLight DirectionalLight{};
 
     std::shared_ptr<Graphics::Shader> LightSourceShader = std::make_shared<Graphics::Shader>(
-            "VertexShader.vert", "LightSourceShader.frag"
-    );
-    LightCube LightCubes[1] = {
-            LightCube(LightSourceShader, {5, 2, 0})
-    };
+            "VertexShader.vert", "LightSourceShader.frag");
+    std::shared_ptr<Graphics::Shader> LitShader = std::make_shared<Graphics::Shader>(
+            "VertexShader.vert", "LitShader.frag");
 
-    Graphics::Model SunModel = Graphics::Model("resources/models/Sun.glb");
 
-    Cube Cubes[9] = {
-            Cube({3, 3, 0}),
-            Cube({6, 4, 0}),
-            Cube({9, 5, 0}),
-            Cube({0, 1, 0}),
-            Cube({-3, 2, 0}),
-            Cube({-6, 2.5, 0}),
-            Cube({-9, 2.7, 0}),
-            Cube({-12, 2, 0}),
-            Cube({-15, 4.5, 0}),
-    };
+    Graphics::Model Sponza = Graphics::Model("resources/models/sponza/sponza.obj");
 
     const unsigned int SHADOW_WIDTH = 2560, SHADOW_HEIGHT = 1440;
     const unsigned int WINDOW_WIDTH = 2560, WINDOW_HEIGHT = 1440;
@@ -64,17 +40,12 @@ public:
             "DebugQuad.vert",
             "DebugQuad.frag"
     );
+    Graphics::Model SunModel = Graphics::Model("resources/models/Sun.glb");
 
-    WoodFloorWithCubesSceneWithShadow() :
-            Floor({-20, 0, -20}) {
-
+    SponzaDirLightShadowScene() {
         DirectionalLight.Ambient = {0.1, 0.1, 0.1};
         DirectionalLight.Diffuse = {0.7, 0.7, 0.7};
         DirectionalLight.Specular = {0.5, 0.5, 0.5};
-
-        for (int i = 0; i < sizeof(LightCubes) / sizeof(LightCube); i++) {
-            LightCubes[i].Id = "Point Light " + std::to_string(i);
-        }
 
         glGenFramebuffers(1, &depthMapFBO);
 
@@ -109,40 +80,41 @@ public:
     void RenderScene(float deltaTime, [[maybe_unused]]float currentTime, Graphics::Shader &shader) {
         shader.Use();
 
-        shader.SetTexture("material.texture_diffuse1", WoodFloorTexture);
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(0.1f));
+        shader.SetMat4("model", model);
         shader.SetFloat("material.shininess", 2.0f);
-        Floor.Position.z = round(Floor.Scale.z / 2);
-        Floor.Position.x = round(Floor.Scale.x / 2);
-        Floor.Update(deltaTime);
-        Floor.Render(shader);
-
-        shader.SetTexture("material.texture_diffuse1", WoodFloorTexture);
-        shader.SetFloat("material.shininess", 2.0f);
-
-        for (int i = 0; i < sizeof(Cubes) / sizeof(Cube); ++i) {
-            Cubes[i].Position.z += glm::sin(currentTime * 0.2 + i) * 0.01;
-            Cubes[i].Update(deltaTime);
-            Cubes[i].Render(shader);
-        }
+        Sponza.Draw(*LitShader);
     }
 
-    void Show(const float deltaTime, [[maybe_unused]] const float currentTime, Camera &camera) {
+
+    float near_plane = 1.0f, far_plane = 100, directionScalar = 30;
+    glm::vec3 eyePositionOffset = glm::vec3(40);
+
+    void Show(const float deltaTime, const float currentTime, Camera &camera) {
         DirectionalLight.UIRender();
 
-        // 1. first render to depth map
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        float x = glm::sin(currentTime * 0.5);
-        float z = glm::cos(currentTime * 0.5);
-        DirectionalLight.Direction.x = x;
-        DirectionalLight.Direction.z = z;
-        float near_plane = 1.0f, far_plane = 100;
-        glm::mat4 lightProjection = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, near_plane, far_plane);
-        glm::vec3 lightDirectionOffset = -DirectionalLight.Direction * glm::vec3(30);
+//        float x = glm::sin(currentTime * 0.5);
+//        float z = glm::cos(currentTime * 0.5);
+//        DirectionalLight.Direction.x = x;
+//        DirectionalLight.Direction.z = z;
 
+        ImGui::Begin("Light Settings");
 
-        glm::vec3 eyePosition = lightDirectionOffset + glm::vec3(x, 0, z);
+        ImGui::SliderFloat("Near Plane", &near_plane, 0.1f, 10.0f);
+        ImGui::SliderFloat("Far Plane", &far_plane, 50.0f, 5000.0f);
+        ImGui::SliderFloat("Direction Scalar", &directionScalar, -3000.0f, 5000.0f);
+
+        ImGui::SliderFloat3("Eye Position", glm::value_ptr(eyePositionOffset), 0, 1000.0f);
+        ImGui::End();
+
+        glm::mat4 lightProjection = glm::ortho(-200.0f, 200.0f, -200.0f, 200.0f, near_plane, far_plane);
+        glm::vec3 lightDirectionOffset = -DirectionalLight.Direction * glm::vec3(directionScalar);
+        glm::vec3 eyePosition = lightDirectionOffset + eyePositionOffset;
+
         glm::mat4 lightView = glm::lookAt(eyePosition, glm::vec3(0), glm::vec3(0.0f, 1.0f, 0.0f));
         glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 
@@ -157,7 +129,7 @@ public:
         glCullFace(GL_BACK);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-// 2. then render scene as normal with shadow mapping (using depth map)
+
         glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -171,58 +143,22 @@ public:
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         glBindVertexArray(0);
 
-        glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-//        glClear(GL_COLOR_BUFFER_BIT);
-
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, eyePosition);
         LightSourceShader->Use();
         LightSourceShader->SetMat4("model", model);
         SunModel.Draw(*LightSourceShader);
 
+
         LitShader->Use();
         LitShader->SetVec3("cameraPos", camera.Position);
+        LitShader->SetFloat("material.shininess", 32.0f);
 
         LitShader->SetVec3("dirLight.direction", DirectionalLight.Direction);
         LitShader->SetVec3("dirLight.ambient", DirectionalLight.Ambient);
         LitShader->SetVec3("dirLight.diffuse", DirectionalLight.Diffuse);
         LitShader->SetVec3("dirLight.specular", DirectionalLight.Specular);
         LitShader->SetMat4("lightSpaceMatrix", lightSpaceMatrix);
-
-//        LitShader->SetInt("pointLightCount", sizeof(LightCubes) / sizeof(LightCube));
-//
-//        float yoffset = glm::sin(currentTime) * 0.1;
-//        for (int i = 0; i < sizeof(LightCubes) / sizeof(LightCube); i++) {
-//            LightCubes[i].UIRender();
-//
-//            LightCubes[i].Position.y += yoffset;
-//            LightCubes[i].Update(deltaTime);
-//            LightCubes[i].Render(*LightSourceShader);
-//
-//            std::ostringstream name;
-//            name << "pointLights[" << i << "].";
-//            auto nameStr = name.str();
-//
-//            LitShader->Use();
-//            LitShader->SetVec3(nameStr + "position", LightCubes[i].Position);
-//            LitShader->SetVec3(nameStr + "ambient", LightCubes[i].Ambient);
-//            LitShader->SetVec3(nameStr + "diffuse", LightCubes[i].Diffuse);
-//            LitShader->SetVec3(nameStr + "specular", LightCubes[i].Specular);
-//            LitShader->SetFloat(nameStr + "constant", LightCubes[i].Constant);
-//            LitShader->SetFloat(nameStr + "linear", LightCubes[i].Linear);
-//            LitShader->SetFloat(nameStr + "quadratic", LightCubes[i].Quadratic);
-//        }
-
-//        LitShader->SetVec3("spotLight.position", camera.Position);
-//        LitShader->SetVec3("spotLight.direction", camera.Front);
-//        LitShader->SetVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
-//        LitShader->SetVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
-//        LitShader->SetVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
-//        LitShader->SetFloat("spotLight.constant", 1.0f);
-//        LitShader->SetFloat("spotLight.linear", 0.09f);
-//        LitShader->SetFloat("spotLight.quadratic", 0.032f);
-//        LitShader->SetFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-//        LitShader->SetFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
 
         glActiveTexture(GL_TEXTURE1);
         LitShader->SetInt("shadowMap", 1);

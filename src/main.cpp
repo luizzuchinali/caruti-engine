@@ -15,6 +15,8 @@
 #include "Scenes/InstancingScene.hpp"
 #include "Scenes/WoodFloorWithCubesScene.hpp"
 #include "Scenes/WoodFloorWithCubesSceneWithShadow.hpp"
+#include "Scenes/SponzaScene.hpp"
+#include "Scenes/SponzaDirLightShadowScene.hpp"
 
 #include <memory>
 #include <sstream>
@@ -140,7 +142,7 @@ void ShowFPS() {
 int main() {
     const auto window = CreateWindow();
 
-    // SponzaScene sponzaScene{};
+//     SponzaScene sponzaScene{};
     // DenseGrassScene denseGrassScene{};
     // SemiTransparentTexturesScene semiTransparentTexturesScene{};
     // FramebufferScene framebufferScene{};
@@ -148,7 +150,9 @@ int main() {
     // EnvironmentMappingScene environmentMappingScene{};
 //    InstancingScene instancingScene{};
 //    WoodFloorWithCubesScene woodFloorWithCubesScene{};
-    WoodFloorWithCubesSceneWithShadow woodFloorWithCubesSceneWithShadow{};
+//    WoodFloorWithCubesSceneWithShadow woodFloorWithCubesSceneWithShadow{};
+    SponzaDirLightShadowScene sponzaDirLightShadowScene{};
+
 
     unsigned int matricesUBO, matricesBindingPort = 0;
     glGenBuffers(1, &matricesUBO);
@@ -187,7 +191,7 @@ int main() {
         glClearColor(0, 0, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // sponzaScene.Show(deltaTime, currentTime, MainCamera);
+//         sponzaScene.Show(deltaTime, currentTime, MainCamera);
         // denseGrassScene.Show(deltaTime, currentTime, MainCamera);
         // semiTransparentTexturesScene.Show(deltaTime, currentTime, MainCamera);
         // framebufferScene.Show(deltaTime, currentTime, MainCamera);
@@ -195,7 +199,8 @@ int main() {
         // environmentMappingScene.Show(deltaTime, currentTime, MainCamera);
 //        instancingScene.Show(deltaTime, currentTime, MainCamera);
 //        woodFloorWithCubesScene.Show(deltaTime, currentTime, MainCamera);
-        woodFloorWithCubesSceneWithShadow.Show(deltaTime, currentTime, MainCamera);
+//        woodFloorWithCubesSceneWithShadow.Show(deltaTime, currentTime, MainCamera);
+        sponzaDirLightShadowScene.Show(deltaTime, currentTime, MainCamera);
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
